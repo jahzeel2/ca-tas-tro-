@@ -1,0 +1,64 @@
+/* CSS Document */
+
+.texto-condiciones {
+    font-size: 11px;
+}
+
+.login-wrap .btn-block {
+    background: #1c84f9;
+    color: #fff;
+    font-weight: bold;
+}
+
+    .login-wrap .btn-block:hover {
+        background: #004889 !important;
+        color: #fff;
+        font-weight: bold;
+    }
+
+@media (max-width: 280px) {
+    .form-login {
+        margin: auto;
+        margin-top: 100px;
+    }
+}
+
+@media (max-width: 480px) and (min-width: 281px) {
+    .form-login {
+        margin: auto;
+        margin-top: 100px;
+    }
+}
+
+@media (max-width: 932px) and (min-width: 640px) {
+    .form-login {
+        margin: auto;
+        margin-top: 0.5em;
+        height: 20%;
+    }
+
+        .form-login h2.form-login-heading {
+            background: none;
+            padding: 20px 20px 5px !important;
+        }
+
+    .login-wrap {
+        height: 17em !important;
+    }
+
+        .login-wrap .btn-block {
+            margin: -1em 0 0 0 !important;
+        }
+
+    .radio, .checkbox {
+        margin: 0 0 0 0 !important;
+    }
+
+    .texto-condiciones {
+        display: none !important;
+    }
+
+    #loginhr {
+        display: none !important;
+    }
+}

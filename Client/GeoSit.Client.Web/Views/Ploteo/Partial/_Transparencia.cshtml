@@ -1,0 +1,36 @@
+﻿@using GeoSit.Data.BusinessEntities.ModuloPloteo;
+@model Plantilla
+
+<legend>Imagen Satelital</legend>
+<div class="form-group row">
+    <label class="control-label col-xs-3" style="padding-block: 0;">Habilitar</label>
+    <div class="col-xs-9">
+        <div class="switch">
+            @Html.CheckBox("chkHabilitarImagen", false, new { @class = "cmn-toggle cmn-toggle-round-flat" })
+        </div>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="control-label col-xs-3">Imagen</label>
+    <div class="col-xs-9">
+        <select class="form-control select2" name="selValue" id="cboImagenSatelitalA4">
+            <option value="0">Seleccione una Imagen</option>
+            @foreach (var imagenSatelital in ViewData["ImagenesSatelitales"] as IEnumerable<ImagenSatelital>)
+            {
+                <option value="@imagenSatelital.IdImagenSatelital">@imagenSatelital.Nombre</option>
+            }
+        </select>
+    </div>
+</div>
+<div class="form-group row transparencia">
+    <label class="control-label col-xs-3">Transparencia</label>
+
+    <div class="col-xs-3">
+        @Html.TextBoxFor(model => model.Transparencia, new { @class = "form-control", style = "margin-top:1px;", @id = "InputSlider", @min = "0", @max = "99" })
+    </div>
+
+    <div class="col-xs-6">
+        <input class="subslide" id="slider" name="slider" style="margin-bottom: 5px; margin-top: 9px; margin-left: 0px;" type="range" value="0" min="0" max="99" />
+    </div>
+</div>
+

@@ -1,0 +1,9 @@
+﻿
+@using GeoSit.Data.BusinessEntities.MesaEntradas.DTO
+
+@foreach (var accion in Model as IEnumerable<Accion>)
+{
+    <li>
+        <a href="javascript:void(0)" data-action="@accion.IdAccion">@accion.Nombre</a>
+    </li>
+}

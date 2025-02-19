@@ -1,0 +1,381 @@
+﻿@using GeoSit.Client.Web.Controllers;
+@using Newtonsoft.Json;
+@using GeoSit.Data.BusinessEntities.Inmuebles;
+@model GeoSit.Data.BusinessEntities.Inmuebles.Parcela
+
+<!--<style>#contenedor-arbol { height: 505px; }</style>-->
+
+@{
+    var nomenclatura = ViewData["Nomenclatura"] as Dictionary<string, string>;
+}
+<div class="row" style="text-align: center; margin-bottom: 20px;">
+    <input type="hidden" id="horaModel" value="@Html.Raw(Model.FechaBaja.HasValue ? Model.FechaBaja.Value.ToString("HH:mm:ss") : "00:00:00")" />
+    <div class="col-xs-12" id="nomenclatura-parcela">
+        <form class="buscador">
+            <div class="nomenclatura">
+                <div class="componente">
+                    <label>DTO</label>
+                    <input name="departamento" placeholder="00" maxlength="2" pattern="\d{1,2}" inputmode="numeric" oninput="this.value = Math.max(0, Math.min(25, this.value.replace(/[^0-9]/g,'')));" class="form-control" max="25" min="0" value="@(nomenclatura["Dep"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>CIRC</label>
+                    <input name="circunscripcion" placeholder="000" maxlength="3" pattern="\d{1,3}" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="form-control" value="@(nomenclatura["Circ"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>SEC</label>
+                    <input name="seccion" placeholder="00" maxlength="2" pattern="\d?[a-zA-Z]?" class="form-control" value="@(nomenclatura["Sec"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>CH</label>
+                    <input name="chacra" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Cha"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>QUI</label>
+                    <input name="quinta" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Qui"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>FRA</label>
+                    <input name="fraccion" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Fra"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>MZA</label>
+                    <input name="manzana" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Man"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>PARC</label>
+                    <input name="parcela" placeholder="00000" maxlength="5" pattern="^\d{0,5}$" class="form-control" value="@(nomenclatura["Par"])" readonly />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row" style="border-top: 1px solid #5f6266; padding-top: 20px;">
+    <div class="col-xs-6">
+        <div class="form-group row" style="margin-bottom: 20px;">
+            <label class="col-xs-3 col-form-label">Tipo</label>
+            <div class="col-xs-7">
+                @Html.DropDownListFor(model => model.TipoParcelaID, (List<SelectListItem>)ViewData["TiposParcela"], new { @class = "form-control", id = "cboTipo", @disabled = "disabled" })
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label" style="margin-top: -3px;">Sup Tierra Registrada</label>
+            <div class="col-xs-7">
+                @{
+                    if (Model.TipoParcelaID == 2 || Model.TipoParcelaID == 3)
+                    {
+                        var superficieFormateada = (Model.Superficie / 10000).ToString("F4");
+                        @Html.TextBox("Superficie", superficieFormateada, new { @class = "form-control", @readonly = "readonly", @id = "SuperficieRegistrada" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(m => m.Superficie, "{0:0.0000}", new { @class = "form-control", @readonly = "readonly", @id = "SuperficieRegistrada" })
+                    }
+                }
+            </div>
+            @{
+                <label class="col-xs-2 col-form-label superficieLabel" style="margin-left: -15px">@((Model.TipoParcelaID == 2 || Model.TipoParcelaID == 3) ? "ha" : "m²")</label>
+            }
+        </div>
+    </div>
+
+    <div class="col-xs-6">
+        <div class="form-group row" style="margin-bottom: 20px;">
+            <label class="col-xs-3 col-form-label">Clase</label>
+            <div class="col-xs-7">
+                @Html.DropDownListFor(model => model.ClaseParcelaID, (List<SelectListItem>)ViewData["ClasesParcela"], new { @class = "form-control", id = "cboClase", @disabled = "disabled", data_editable = "disabled" })
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label" style="margin-top: -3px;">Sup Tierra Gráfica</label>
+            <div class="col-xs-7">
+                @Html.TextBoxFor(m => m.SuperficieGrafica, new { @class = "form-control", @readonly = "readonly", @data_editable = "disabled", @Value = string.Format("{0:0.0000}", Model.SuperficieGrafica) })
+            </div>
+            @{ <label class="col-xs-2 col-form-label superficieLabel" style="margin-left: -15px">@((Model.TipoParcelaID == 2 || Model.TipoParcelaID == 3) ? "ha" : "m²")</label> }
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label" style="margin-top: -3px;">Fecha Alta en Sistema</label>
+            <div class="col-xs-7">
+                @Html.TextBoxFor(m => m.FechaAlta, new { @type = "text", @class = "form-control parcela-fecha", @Value = Model.FechaAlta.ToString("dd/MM/yyyy"), @readonly = "readonly", @data_editable = "disabled" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label" style="margin-top: -3px;">Fecha de Baja</label>
+            <div class="col-xs-7">
+                @if (Model.FechaBaja.HasValue)
+                {
+                    @Html.TextBoxFor(m => m.FechaBaja, new { @id = "FechaBaja", @type = "date", @class = "form-control parcela-fecha", @readonly = "readonly", @Value = Model.FechaBaja.Value.ToString("yyyy-MM-dd") })
+                }
+                else
+                {
+                    @Html.TextBoxFor(m => m.FechaBaja, new { @id = "FechaBaja", @type = "text", @class = "form-control parcela-fecha", @Value = string.Empty, @readonly = "readonly" })
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label for="planos" class="col-xs-12 col-form-label">Planos</label>
+            <div class="col-xs-11">
+                <div style="max-height: 125px; overflow-y: auto;">
+                    <table class="table table-striped table-bordered table-responsive dataTable no-footer" id="grilla-planos" style="margin-top: 0px !important">
+                        <thead>
+                            <tr>
+                                <th>Plano</th>
+                                <th>Fecha Aprobación</th>
+                                <th>Fecha Baja</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["Planos"] != null && ((List<ParcelaMensura>)ViewData["Planos"]).Any())
+                            {
+                                foreach (var mensura in (List<ParcelaMensura>)ViewData["Planos"])
+                                {
+                                    <tr data-id-parcela-mensura="@mensura.IdParcelaMensura" data-id-mensura="@mensura.Mensura.IdMensura" data-id-parcela="@mensura.IdParcela"
+                                        data-id-documento="@(mensura.Mensura.MensurasDocumentos != null && mensura.Mensura.MensurasDocumentos.Any() && mensura.Mensura.MensurasDocumentos.First().Documento != null ? mensura.Mensura.MensurasDocumentos.First().Documento.id_documento : 0)">
+                                        <td>@mensura.Mensura.Descripcion</td>
+                                        <td>@(mensura.Mensura.FechaAprobacion.HasValue ? mensura.Mensura.FechaAprobacion.Value.ToString("dd/MM/yyyy") : "")</td>
+                                        <td>@(mensura.FechaBaja.HasValue ? mensura.FechaBaja.Value.ToString("dd/MM/yyyy") : "")</td>
+                                        <td>@mensura.Mensura.EstadoMensura.Descripcion</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">No se encontraron planos.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-xs-1" style="margin-top: 5px; margin-left: -20px;">
+                <dl class="editing">
+                    <dt><span id="abrir-documento" class="fa fa-eye fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline; margin-left: -0.5px;"></span></dt>
+                    @if (SeguridadController.ExisteFuncion(@Resources.Seguridad.AltaDocumentosParcela))
+                    {
+                        <dt><span id="plano-insert" class="fa fa-plus-circle fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                    }
+                    @if (SeguridadController.ExisteFuncion(@Resources.Seguridad.BajaDocumentosParcela))
+                    {
+                        <dt><span id="plano-delete" class="fa fa-minus-circle fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-12 col-form-label" style="margin-left: 1px">Ubicaci&oacute;n</label>
+            <div class="col-xs-12">
+                @Html.TextArea("txtUbicacion", null, new { @class = "form-control", @readonly = "readonly", @data_editable = "disabled", style = "height: 160px;" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label for="observaciones" class="col-xs-12 col-form-label" style="margin-left: 1px">Observaciones</label>
+            <div class="col-xs-12">
+                @Html.TextArea("observacionesParcela", ViewData["Observaciones"].ToString(), new { @class = "form-control", @readonly = "readonly", style = "height: 160px;" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label for="centroide" class="col-xs-12 col-form-label" style="margin-left: 1px">Centroide</label>
+            <div class="col-xs-12">
+                @Html.TextArea("txtCentroide", ViewData["Centroide"].ToString(), new { @class = "form-control", @readonly = "readonly", @data_editable = "disabled", style = "height: 160px;" })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var selectedParcelaMensuraId = null;
+    var selectedMensuraId = null;
+    var selectedParcelaId = null;
+    var selectedDocumentoId = null;
+
+    $(document).ready(function () {
+        $("#objeto #nomenclatura-parcela input").each(function () {
+            let inputName = $(this).attr("name");
+            if (["chacra", "quinta", "fraccion", "manzana"].includes(inputName)) {
+                $(this).on("blur", function () {
+                    this.value = this.value.padStart(4, "0");
+                });
+            }
+            else if (["departamento", "seccion"].includes(inputName)) {
+                $(this).on("blur", function () {
+                    this.value = this.value.padStart(2, "0");
+                });
+            }
+            else if (inputName === "parcela") {
+                $(this).on("blur", function () {
+                    this.value = this.value.padStart(5, "0");
+                });
+            }
+            else if (inputName === "circunscripcion") {
+                $(this).on("blur", function () {
+                    this.value = this.value.padStart(3, "0");
+                });
+            }
+        });
+
+        $("#cboTipo").change(function () {
+            if ($("#cboTipo").val() == 2 || $("#cboTipo").val() == 3) {
+                $(".superficieLabel").text("ha");
+            } else {
+                $(".superficieLabel").text("m²");
+            }
+            $("#SuperficieRegistrada").val("");
+        });
+
+        $("#SuperficieRegistrada").on("input", function () {
+            var value = $(this).val();
+            value = value.replace(',', '.');
+            if (!/^\d*\.?\d*$/.test(value)) {
+                $(this).val(value.slice(0, -1));
+                return;
+            }
+            if (value.includes(".")) {
+                var decimals = value.split(".")[1];
+                if (decimals.length > 4) {
+                    $(this).val(parseFloat(value).toFixed(4));
+                } else {
+                    $(this).val(value);
+                }
+            } else {
+                $(this).val(value);
+            }
+        });
+
+        $("#cboClase").change(async function () {
+            if ($("#cboClase").val() == 3) { // PH
+                cantidadUF = await obtenerIngresoUF();
+                if (cantidadUF === null) return;
+            } else if ($("#cboClase").val() == 4) { // PHE
+                cantidadUF = await obtenerIngresoUF();
+                if (cantidadUF === null) return;
+            }
+            else {
+                cantidadUF = "0";
+                @*
+                //var unidadesTributarias = @Html.Raw(JsonConvert.SerializeObject(
+                    //Model.UnidadesTributarias
+                        //.OrderBy(ut => ut.FechaAlta)
+                        //.Select(ut => new {
+                           //ut.UnidadTributariaId,
+                        //})
+                //));
+                *@
+                if (unidadesTributarias.length > 1) {
+                    mostrarMensajeError(["Se ha seleccionado la clase " + $("#cboClase option:selected").text() + " para esta parcela.", "", "Tenga en cuenta que al guardar esta modificación, se darán de baja las " + (unidadesTributarias.length - 1) + " unidades funcionales asociadas."], "Mantenedor Parcelario - Baja UF");
+                }     
+            }
+        });
+
+        var rows = document.querySelectorAll('#grilla-planos tbody tr');
+        rows.forEach(function (row) {
+            row.addEventListener('click', function () {
+                selectedParcelaMensuraId = this.getAttribute('data-id-parcela-mensura');
+                selectedMensuraId = this.getAttribute('data-id-mensura');
+                selectedParcelaId = this.getAttribute('data-id-parcela');
+                selectedDocumentoId = this.getAttribute('data-id-documento');
+            });
+        });
+
+        $('#plano-delete').click(async function () {
+            const confirma = await mostrarMensajeGeneral(["Esta acción no se puede revertir...", "", "¿Desea continuar?"], "Eliminar Plano", true);
+            if (confirma) {
+                if (selectedParcelaMensuraId && selectedMensuraId && selectedParcelaId) {
+                    eliminarParcelaMensura(selectedMensuraId, selectedParcelaMensuraId, selectedParcelaId);
+                }
+            }
+        });
+
+        $('#abrir-documento').click(function () {
+            if (selectedDocumentoId && selectedDocumentoId != 0) {
+                window.open(`${BASE_URL}documento/download/${selectedDocumentoId}`);
+            }
+            else {
+                mostrarMensajeError(["El plano seleccionado no tiene un documento asignado para poder visualizarlo."], "Mantenedor Parcelario - Plano sin documento", true);
+            }
+        });
+
+        $('#grilla-planos tbody').on('click', 'tr', function () {
+            $('#grilla-planos tr').not(this).attr('style', '');
+            $(this).attr('style', 'background-color: #B0BED9 !important;');
+            if ($('#edit-all').css('display') === 'none') {
+                $('#plano-delete').removeClass('boton-deshabilitado');
+                $('#abrir-documento').removeClass('boton-deshabilitado');
+            }
+            else {
+                $('#abrir-documento').removeClass('boton-deshabilitado');
+            }
+        });
+
+        $('#plano-insert').click(function () {
+            loadAdministradorForm(
+                BASE_URL + "Mensura/DatosMensura",
+                'GET',
+                {},
+                function() { cargarVista("MantenimientoParcelario/GetParcelaView", "Parcela", { idParcela: @Model.ParcelaID }); }
+            );
+        });
+
+    });
+
+    async function obtenerIngresoUF() {
+        const result = await mostrarMensajeGeneral([
+            "Se ha seleccionado la clase " + $("#cboClase option:selected").text() + " para esta parcela.",
+            "",
+            "Ingrese la cantidad de unidades funcionales:",
+            "<input type='number' id='CantidadUF' class='form-control' value='2' step='1' min='2' max='1500' " +
+            "oninput='if (this.value > 1500) this.value = 1500;' " +
+            "onblur='if (this.value === \"\") { this.value = 0; }'>",
+        ], "Registro Unidades Funcionales", true);
+        if (!result) return "0";
+        const cantidadUF = $("#CantidadUF").val();
+        return (cantidadUF == null || cantidadUF === "") ? "0" : cantidadUF;
+    }
+
+    function eliminarParcelaMensura(idMensura, idParcelaMensura, idParcela) {
+        showLoading();
+        $.ajax({
+            url: BASE_URL + "Mensura/DeleteRelacionParcelaMensura",
+            type: 'POST',
+            data: {
+                idMensura: idMensura,
+                idParcelaMensura: idParcelaMensura
+            },
+            success: function (response) {
+                cargarVista("MantenimientoParcelario/GetParcelaView", "Parcela", { idParcela: idParcela });
+                $('#cancel-all').click();
+            },
+            error: function (xhr, status, error) {
+                alert('Error al ELIMINAR MENSURA:', error);
+                hideLoading();
+            },
+            complete: function () {
+                //hideLoading();
+            }
+        });
+    }
+
+</script>

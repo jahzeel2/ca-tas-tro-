@@ -1,0 +1,104 @@
+﻿@using GeoSit.Client.Web.ViewModels;
+
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/css/select2.css" rel="stylesheet" />
+<link href="~/Content/select2-bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-switch.css" rel="stylesheet" />
+<link href="~/Content/SliderBar/jquery-ui-slider-pips.css" rel="stylesheet" />
+<link href="~/Content/SliderBar/prism.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-fileinput/css/fileinput.min.css" rel="stylesheet" />
+<link href="~/Content/Ploteo.css" rel="stylesheet" />
+
+<div class="modal fade theme_new" id="modal-window-ploteador" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="scroll-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">@Resources.Recursos.DispatcherPloteos</h3>
+                    <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                <div class="modal-body ploteo-body">
+                    <div class="ploteo-content body-content">
+                        @if (ViewData["IdColeccion"] != null)
+                        {
+                            <input type="hidden" id="idColeccionPrecargada" value="@((long?)ViewData["IdColeccion"]).Value">
+                        }
+                        <div class="scrollable-panel left">
+                            <div class="panel-group accordion grupos-plantillas">
+                                 @foreach (var categoria in ViewData["Categorias"] as IEnumerable<CategoriaModel>)
+                                 { 
+                                     string accordionId = "accordion-categorias-" + categoria.IdTipo; 
+                                     string collapseId = "collapse-categorias-" + categoria.IdTipo;
+
+                                     <div class="panel remove-shadow">
+                                        <div class='panel-heading bg-primary' id="@accordionId">
+                                            <a data-toggle='collapse' aria-expanded='true' href="#@collapseId"
+                                               aria-controls="@collapseId">
+                                                <div class='panel-title'>
+                                                    @categoria.Nombre
+                                                    <i class="fa"></i>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div id="@collapseId" class="panel-collapse collapse in" aria-labelledby="@accordionId">
+                                            <div class="panel-body">
+                                                <ul id="grLisColecciones" class="list-group">
+                                                    @foreach (var plantilla in categoria.Plantillas)
+                                                    {
+                                                        <li class="list-group-item cursor-pointer" onclick="cargarPlantilla('@(Url.Action(categoria.Action, "Ploteo") + "/" + plantilla.IdPlantilla)', @plantilla.IdPlantilla, @categoria.IdTipo)">
+                                                            @plantilla.Nombre
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                  }
+                            </div>
+                        </div>
+                        <div class="scrollable-panel right">
+                            <form id="form-plantilla" class="form-horizontal">
+                                <div id="configuracion-ploteo"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-xs-4 pull-right">
+                        <button id="btnGenerar" type="button" class="btn btn-secondary" disabled="disabled">Generar</button>
+                    </div>
+                </div>
+            </div>
+       </div>
+    </div>
+</div>
+
+<!--Popup-->
+<div class="modal fade theme_new mensaje" id="ploteo-error-modal" tabindex="-2" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Atención!</h3>
+                <span aria-hidden="true" class="fa fa-close fa-2x white pull-right cursor-pointer" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+            </div>
+            <div class="modal-body">
+                <div id="MensajeAlertaPloteo" class="alert alert-danger alert-dismissible" role="alert">
+                    <strong>Mensaje de error</strong><br>
+                    <p id="mensaje-error-ploteo"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/Scripts/jquery.dataTables.js"></script>
+<script type="text/javascript" src="~/Scripts/select2.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.inputmask.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.inputmask.regex.extensions.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.inputmask.numeric.extensions.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.form.js"></script>
+<script type="text/javascript" src="~/Scripts/SliderBar/jquery-ui-slider-pips.js"></script>
+<script type="text/javascript" src="~/Scripts/SliderBar/prism.js"></script>
+<script type="text/javascript" src="~/Scripts/SliderBar/jquery.range.js"></script>
+<script type="text/javascript" src="~/Scripts/fileinput.es.js"></script>
+<script type="text/javascript" src="~/Scripts/Ploteo/main.js"></script>

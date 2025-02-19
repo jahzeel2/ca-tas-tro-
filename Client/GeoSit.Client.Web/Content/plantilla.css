@@ -1,0 +1,27 @@
+﻿/*.plantilla-body {
+	overflow: hidden !important; 	
+	overflow-y: visible !important; 
+    padding-bottom: 0 !important;
+}*/
+#plantillaModal .plantilla-content {
+	height: calc(100vh - 160px);
+	overflow: hidden;
+}
+.plantilla-datos {
+    padding: 0px;
+    margin-top: 0px; margin-bottom: 0;
+}
+.plantilla-datos .panel-body { padding: 5px 15px !important }
+
+.cursor-pointer { cursor: pointer; }
+.align-right { text-align: right; }
+.tooltip.in {
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+
+.resultados { margin-top: 10px }
+.plantilla-listado { height: auto; max-height: 300px }
+.section-position { 
+    margin-top: 3px;
+}

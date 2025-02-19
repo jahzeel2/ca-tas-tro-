@@ -1,0 +1,165 @@
+﻿#modal-window-tramite [role="presentation"].estado-visados {
+    position: absolute;
+    right: calc(50%);
+    transform: translate(50%, 0);
+}
+
+    #modal-window-tramite [role="presentation"].estado-visados > div {
+        margin-top: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        color: #4d5055;
+    }
+
+    #modal-window-tramite [role="presentation"].estado-visados .visado {
+        display: grid;
+        text-align: center;
+    }
+
+        #modal-window-tramite [role="presentation"].estado-visados .visado.completo > i {
+            color: #337ab7;
+        }
+
+#modal-window-tramite .body-content {
+    height: calc(100vh - 160px);
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
+#modal-window-tramite [role="tabpanel"] {
+    margin: 1rem 2rem;
+    height: calc(100% - 2rem);
+}
+
+    #modal-window-tramite [role="tabpanel"].active {
+        display: grid;
+    }
+
+    #modal-window-tramite [role="tabpanel"] > .grid-row {
+        display: inline-grid;
+        grid-auto-flow: column;
+        column-gap: 1rem;
+    }
+
+        #modal-window-tramite [role="tabpanel"] > .grid-row.grillas {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        #modal-window-tramite [role="tabpanel"] > .grid-row > .columna {
+            display: grid;
+            gap: 1rem;
+            grid-auto-flow: column;
+        }
+
+            #modal-window-tramite [role="tabpanel"] > .grid-row > .columna.grilla {
+                grid-template-columns: 1fr;
+                align-items: start;
+                position: relative;
+            }
+
+#modal-window-tramite .tabs-title.hidden + .panel-body > .tab-content > [role=tabpanel] {
+    margin: 0;
+    height: 100%;
+}
+
+#modal-window-tramite table td.has-input-child {
+    padding: 0 !important;
+}
+
+#modal-window-tramite table td input {
+    margin: 5px !important;
+    width: calc(100% - 10px) !important;
+}
+
+#modal-window-tramite table td.has-input-child > input:not(:only-child) {
+    width: calc(100% - 50px) !important;
+}
+
+#modal-window-tramite table > caption {
+    color: black;
+    padding-inline: 1rem;
+}
+
+#modal-window-tramite .grid-row > .columna.grilla > .tabla-con-botones,
+#modal-window-tramite .grid-row > .columna.grilla > .tabla-sin-botones {
+    padding-inline: 0;
+}
+
+    #modal-window-tramite .grid-row > .columna.grilla > .tabla-con-botones dl {
+        margin: 0;
+        margin-top: 3.5rem;
+        position: relative;
+    }
+
+
+#modal-window-tramite .mensura > div:first-of-type {
+    grid-template-columns: auto 1fr;
+}
+
+#modal-window-tramite .mensura > .grid-row > .plano {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#modal-window-tramite #txtIniciador.active-look {
+    background-color: white;
+}
+#modal-window-tramite .datos {
+    row-gap: 1rem;
+    grid-template-rows: repeat(4, auto) 1fr;
+}
+
+    #modal-window-tramite .datos > .grid-row {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+        #modal-window-tramite .datos > .grid-row.origenes {
+            grid-template-columns: 15fr 4fr 3fr;
+            column-gap: 5rem;
+        }
+
+        #modal-window-tramite .datos > .grid-row > .columna {
+            grid-template-columns: 2fr 5fr;
+            align-items: center;
+        }
+
+#modal-window-tramite .grid-row > .columna > label {
+    margin-bottom: 0;
+    text-align: right;
+}
+
+#modal-window-tramite .mensura > .grid-row.grillas {
+    column-gap: 4rem;
+}
+
+#modal-window-tramite tr > td > a.observaciones {
+    color: #000000;
+}
+
+#modal-window-tramite tr > td.editable-column {
+    padding: 2px !important;
+    vertical-align: middle;
+}
+
+    #modal-window-tramite tr > td.editable-column > input {
+        width: 100%;
+    }
+
+#modal-window-tramite tr > td.centered-column {
+    vertical-align: middle;
+    padding: 0 10px !important;
+}
+
+#modal-window-tramite .modal-footer {
+    padding: 10px 15px;
+}
+
+    #modal-window-tramite .modal-footer > .buttons {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }

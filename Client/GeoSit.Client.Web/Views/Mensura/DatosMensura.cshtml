@@ -1,0 +1,229 @@
+﻿@model GeoSit.Client.Web.Models.MensuraModel
+
+@{
+    ViewBag.Title = "Administración de Mensuras";
+}
+
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/abmMensuras.css" rel="stylesheet" />
+
+
+<div class="modal theme_new fade" id="modal-window-mensuras" tabindex="-1" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="scroll-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">@ViewBag.Title</h3>
+                    <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                @*Fin de modal-header*@
+                <div class="modal-body mensura-body">
+                    <div class="body-content mensura-content">
+                        <div class="panel-group accordion">
+                            <div class="panel remove-margin remove-shadow">
+                                <div class="panel-heading bg-primary main-heading listado">
+                                    <a href="javascript:void(0)">
+                                        <div class="panel-title">
+                                            Lista de Mensuras
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="panel-body">
+                                    <form id="form-buscador" class="buscador">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Buscar mensura...">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="submit"><i class="fa-lg fa fa-search"></i></button>
+                                                <button class="btn btn-default" type="reset"><i class="fa-lg fa fa-trash"></i></button>
+                                            </span>
+                                        </div>
+                                    </form>
+                                    <div class="resultados tabla-con-botones">
+                                        <table id="grillaResultadoBusqueda" class="table table-striped table-condensed table-bordered table-responsive"></table>
+                                        <dl>
+                                            <dt><span title="Agregar Mensura" id="btnAgregarMensura"><i class="fa fa-plus-circle fa-2x black"></i></span></dt>
+                                            <dt><span title="Eliminar Mensura" on-off id="btnEliminarMensura" class="disabled"><i class="fa fa-minus-circle fa-2x black"></i></span></dt>
+                                            <dt><span title="Editar Mensura" on-off id="btnModificarMensura" class="disabled"><i class="fa fa-pencil fa-2x black"></i></span></dt>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel remove-margin remove-shadow">
+                                <div class="panel-heading bg-primary main-heading">
+                                    <a href="javascript:void(0)">
+                                        <div class="panel-title">
+                                            Detalle de Mensura
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="panel-body">
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a href="#info-mensura" aria-controls="info-mensura" role="tab" data-toggle="tab">General</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#parcelas-relacionadas" aria-controls="#parcelas-relacionadas" role="tab" data-toggle="tab">Parcelas</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#mensuras-relacionadas" aria-controls="#mensuras-relacionadas" role="tab" data-toggle="tab">Mensuras Relacionadas</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#documentos-relacionados" aria-controls="#documentos-relacionados" role="tab" data-toggle="tab">Documentos</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active" id="info-mensura">
+                                            <div class="tab-content-data">
+                                                <form id="form-mensura" class="mensura">
+                                                    @Html.HiddenFor(model => model.IdMensura)
+                                                    <div class="info-group">
+                                                        <div class="data-item">
+                                                            <label class="control-label">Departamento</label>
+                                                            @Html.DropDownListFor(model => model.Departamento, (IEnumerable<SelectListItem>)ViewData["departamentos"], new { @class = "form-control", @disabled = "disabled" })
+                                                        </div>
+                                                        <div class="data-item">
+                                                            <label class="control-label">N&uacute;mero</label>
+                                                            @Html.TextBoxFor(model => model.Numero, new { @class = "form-control", @readonly = "readonly", @maxlength = "3", @pattern = "\\d{1,3}", @onblur = "this.value = this.value.padStart(3, '0')", @placeholder = "000" })
+                                                        </div>
+                                                        <div class="data-item">
+                                                            <label class="control-label">A&ntilde;o</label>
+                                                            @Html.TextBoxFor(model => model.Anio, new { @class = "form-control", @readonly = "readonly", @type = "text", @maxlength = "2", @pattern = "[A-Za-z0-9]{1,2}", @onblur = "this.value = this.value.padStart(2, '0')", @placeholder = "00" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-group">
+                                                        <div class="data-item">
+                                                            <label class="control-label">Descripci&oacute;n</label>
+                                                            @Html.TextBoxFor(model => model.Descripcion, new { @class = "form-control", @readonly = "readonly", @disabled = "disabled" })
+                                                        </div>
+                                                        <div class="data-item">
+                                                            <label class="control-label">Tipo</label>
+                                                            @Html.DropDownListFor(model => model.IdTipoMensura, (IEnumerable<SelectListItem>)ViewData["tiposmensuras"], new { @class = "form-control", @disabled = "disabled" })
+                                                        </div>
+                                                        <div class="data-item">
+                                                            <label class="control-label">Estado</label>
+                                                            @Html.DropDownListFor(model => model.IdEstadoMensura, (IEnumerable<SelectListItem>)ViewData["estadosmensuras"], new { @class = "form-control", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-group">
+                                                        <div class="data-item">
+                                                            <label class="control-label">Fecha Presentaci&oacute;n</label>
+                                                            <div class="input-group date">
+                                                                @Html.TextBoxFor(model => model.FechaPresentacion, new { @class = "form-control", @readonly = "readonly" })
+                                                                <div class="input-group-addon">
+                                                                    <i class="fa fa-calendar"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="data-item">
+                                                            <label class="control-label">Fecha Aprobaci&oacute;n</label>
+                                                            <div class="input-group date">
+                                                                @Html.TextBoxFor(model => model.FechaAprobacion, new { @class = "form-control", @readonly = "readonly" })
+                                                                <div class="input-group-addon">
+                                                                    <i class="fa fa-calendar"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="data-item half-size">
+                                                            <label class="control-label">Observaciones</label>
+                                                            @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control", @readonly = "readonly", @maxlength = "300" })
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="parcelas-relacionadas">
+                                            <div class="tab-content-data">
+                                                <div class="tabla-con-botones">
+                                                    <table id="grillaParcelas" class="table table-striped table-condensed table-bordered table-responsive"></table>
+                                                    <dl>
+                                                        <dt><span title="Agregar Parcela" id="btnAgregarParcela" class="hidden"><i class="fa fa-plus-circle fa-2x black"></i></span></dt>
+                                                        <dt><span title="Eliminar Parcela" on-off id="btnEliminarParcela" class="hidden disabled"><i class="fa fa-minus-circle fa-2x black"></i></span></dt>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="mensuras-relacionadas">
+                                            <div class="tab-content-data">
+                                                <div class="tabla-con-botones">
+                                                    <table id="grillaMensurasRelacionadas" class="table table-striped table-condensed table-bordered table-responsive"></table>
+                                                    <dl>
+                                                        <dt><span title="Agregar Mensura Asociada" id="btnAgregarMensuraAsociada" class="hidden"><i class="fa fa-plus-circle fa-2x black"></i></span></dt>
+                                                        <dt><span title="Eliminar Mensura Asociada" on-off id="btnEliminarMensuraAsociada" class="hidden disabled"><i class="fa fa-minus-circle fa-2x black"></i></span></dt>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="documentos-relacionados">
+                                            <div class="tab-content-data">
+                                                <div class="tabla-con-botones">
+                                                    <table id="grillaDocumentos" class="table table-striped table-condensed table-bordered table-responsive"></table>
+                                                    <dl>
+                                                        <dt><span title="Agregar Documento" id="btnAgregarDocumento" class="hidden"><i class="fa fa-plus-circle fa-2x black"></i></span></dt>
+                                                        <dt><span title="Eliminar Documento" on-off id="btnEliminarDocumento" class="hidden disabled"><i class="fa fa-minus-circle fa-2x black"></i></span></dt>
+                                                        <dt><span title="Editar Documento" on-off id="btnModificarDocumento" class="hidden disabled"><i class="fa fa-pencil fa-2x black"></i></span></dt>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*Fin de modal-body*@
+                <div class="modal-footer hidden">
+                    <div class="col-xs-4 pull-right">
+                        <span role="button" title="Guardar" id="btnGrabar" class="cursor-pointer"><i class="fa fa-save fa-2x black"></i></span>
+                        <span role="button" title="Cancelar" id="btnCancelar" class="cursor-pointer"><i class="fa fa-undo fa-2x black"></i></span>
+                    </div>
+                </div>
+                @*Botones Grabar y Cancelar*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Advertencia-->
+<div class="modal theme_new mensaje fade" id="modal-info-mensura" tabindex="-2" role="dialog" aria-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Titulo</h3>
+                <span class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" title="Cerrar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <p>Descripcion de la informacion</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-4 pull-right">
+                    <span role="button" data-dismiss="modal" title="Aceptar" class="fa fa-check-circle fa-3x light-blue cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="contenedor-forms-externos"></div>
+
+@if (((bool?)ViewData["esAltaBuscador"]).GetValueOrDefault())
+{
+    <script>
+        function mensuraGuardada(mensura) {
+            $(window).trigger({ type: "mensuraAgregada", mensura: mensura });
+            $("#modal-window-mensuras").modal('hide');
+        }
+    </script>
+}
+
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/dataTables.bootstrap.js"></script>
+<script src="~/Scripts/mensuras/service.js"></script>
+<script src="~/Scripts/mensuras/store.js"></script>
+<script src="~/Scripts/mensuras/main.js"></script>
+
+<script>
+    AdministradorMensurasController("#modal-window-mensuras", createStore(createService()));
+</script>

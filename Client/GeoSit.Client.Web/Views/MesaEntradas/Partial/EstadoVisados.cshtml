@@ -1,0 +1,21 @@
+﻿@model GeoSit.Client.Web.ViewModels.ResumenVisadosViewModel
+
+@helper AddVisado(bool visado, string texto, string operacion = "Visado")
+{
+    string icon = "fa-circle-o";
+    string completo = "";
+    if (visado)
+    {
+        icon = "fa-check-circle-o";
+        completo = "completo";
+    }
+    <div class="visado @completo"><i class="fa fa-lg @icon" aria-hidden="true"></i>@operacion @texto</div>
+}
+<div>
+    @AddVisado(Model.VisadoDominioCompleto, "Dominio")
+    @AddVisado(Model.VisadoTopograficoCompleto, "Topográfía")
+    @AddVisado(Model.VisadoGraficoCompleto, "Cartografía")
+    @AddVisado(Model.VisadoCatastroCompleto, "Inf. Catastral")
+    @AddVisado(Model.VisadoValuatorioCompleto, "Valuaciones")
+    @AddVisado(Model.Aprobado, "Dirección", "Aprob.")
+</div>

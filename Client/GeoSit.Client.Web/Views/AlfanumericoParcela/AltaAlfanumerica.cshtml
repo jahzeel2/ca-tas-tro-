@@ -1,0 +1,220 @@
+﻿@using GeoSit.Data.BusinessEntities.Inmuebles;
+
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-switch.css" rel="stylesheet" />
+<link href="~/Content/css/select2.css" rel="stylesheet" />
+<link href="~/Content/select2-bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/formValidation.min.css" rel="stylesheet" />
+<link href="~/Content/tramitesCertificados.css" rel="stylesheet" />
+<link href="~/Content/mantenedorParcelario.css" rel="stylesheet" />
+<link href="~/Scripts/jstree/dist/themes/default/style.css" rel="stylesheet" />
+
+<div class="modal fade theme_new" id="generacionCertificadosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" style="display: flex !important; justify-content: center; align-items: center;">
+    <div class="modal-dialog modal-xlg" style="margin: 5px auto;">
+        <div class="modal-content">
+            <div class="scroll-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" style="font-size: 14px !important">Alta Alfanumérica</h3>
+                    <span id="btnCerrarMantenedor" aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                <div class="modal-body mantenedor-parcelario-body">
+                    <div class="row">
+                        <div class="col-xs-3" id="contenedor-arbol" style="height: 720px;">
+                            <div class="form-control jstree-border jstree-wrapper" readonly>
+                                <div id="arbol" role="tree"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-9" id="objeto" style="margin-top: 5px; margin-left: -13px; overflow-x: hidden;">
+                            @Html.Partial("~/Views/AlfanumericoParcela/Partial/_ParcelaUT.cshtml", Model as GeoSit.Client.Web.ViewModels.ParcelaUTViewModel)
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-xs-4 pull-right">
+                        @*<span aria-hidden="true" aria-controls='button' data-placement="right" title="Guardar" data-original-title="Guardar" id="alta-alfanumerica" class="fa fa-save fa-2x black cursor-pointer"></span>*@
+                        <span aria-hidden="true" aria-controls='button' data-placement="right" title="Continuar" data-original-title="Continuar" id="alta-alfanumerica" class="fa fa-chevron-right fa-2x black cursor-pointer"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade theme_new mensaje" id="modal-alta-alfa" tabindex="-3" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Titulo</h3>
+                <span class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" title="Cerrar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <p>Descripcion de la informacion</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-4 pull-right">
+                    <span role="button" data-dismiss="modal" title="Aceptar" class="fa fa-check-circle fa-3x light-blue cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*
+    <div id="alta-alfanumerico-externo-container"></div>
+*@
+
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/dataTables.bootstrap.js"></script>
+<script src="~/Scripts/jquery.form.js"></script>
+<script src="~/Scripts/formValidation.min.js"></script>
+<script src="~/Scripts/bootstrapValidation.min.js"></script>
+<script src="~/Scripts/Tramites/main.js"></script>
+<script src="~/Scripts/jstree/dist/jstree.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#arbol').jstree({
+            'core': {
+                'data': [
+                    {
+                         "text": "Parc: " + "@ViewData["Parcela"]",
+                        "children": [
+                            {
+                                "text": "UT: COM 0",
+                                "id": "ut_node"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "plugins": ["wholerow"],
+            "themes": {
+                "icons": false
+            }
+        }).on('loaded.jstree', function () {
+            var treeInstance = $(this).jstree(true);
+            treeInstance.open_all();
+            var firstNode = $(this).find('li:first');
+            treeInstance.select_node(firstNode);
+            actualizarArbol(treeInstance);
+        });
+
+        $('#alta-alfanumerica').click(async function () {
+            try {
+                const confirmacion = await mostrarMensajeGeneralAltaAlfa(["Se procederá con el guardado del alta alfanumérica ingresada (parcela, nomenclatura, unidad tributaria).", "Esta operación no se puede deshacer.", "", "¿Desea continuar?"], `Alta Alfanumérica - Guardar`, true);
+                if (confirmacion) {
+                    if ($("#cboTipo").val() == 2 || $("#cboTipo").val() == 3) {
+                        var superficie = Math.floor(parseFloat($("#SuperficieRegistrada").val()) * 10000);
+                    } else {
+                        var superficie = Math.floor(parseFloat($("#SuperficieRegistrada").val()));
+                    }
+                    var nomenclaturaString = "";
+                    $("#objeto #nomenclatura-parcela input").each(function () {
+                        nomenclaturaString += $(this).val();
+                    });
+                    const datosGenerales = {
+                        tipoParcelaID: $("#cboTipo").val(),
+                        claseParcelaID: $("#cboClase").val(),
+                        superficieRegistrada: superficie,
+                        observacionesParcela: $("#observacionesParcela").val(),
+                        nomenclatura: nomenclaturaString,
+                        tipoUTid: $("#cboTipoUT").val(),
+                        piso: $("#UnidadTributaria_Piso").val(),
+                        observacionesUT: $("#UnidadTributaria_Observaciones").val(),
+                        partida: $("#UnidadTributaria_CodigoProvincial").val(),
+                        unidadFuncional: $("#UnidadTributaria_UnidadFuncional").val(),
+                        cantidadUF: $("#cantidadUF").val()
+                    };
+
+                    showLoading();
+                    const response = await $.ajax({
+                        url: BASE_URL + "MantenimientoParcelario/AgregarAltaAlfanumerica",
+                        data: datosGenerales,
+                        type: 'POST'
+                    });
+
+                    if (response && response.partidaRepetida) {
+                        hideLoading();
+                        mostrarMensajeErrorAltaAlfa(["La partida ingresada ya existe para otra unidad tributaria."], "Alta Alfanumérica - Partida duplicada", true);
+                    } else {
+                        hideLoading();
+                        const confirma = await mostrarMensajeGeneralAltaAlfa(["La parcela, nomenclatura y unidad tributaria ingresadas han sido dadas de alta correctamente.", "", "Es posible que no se encuentren estos cambios temporalmente dado que el buscador estará actualizándose durante los próximos minutos.", "", "A continuación se abrirá el Mantenedor Parcelario para finalizar con el alta de planos, dominios, titulares y valuaciones."], `Alta Alfanumérica - Guardar`, true);
+                        if (!confirma || confirma) {
+                            $("#btnCerrarMantenedor").click();
+                            $('#modal-window-alfanumerico-parcelas .modal-header .fa-close').click();
+                            loadView(`${BASE_URL}MantenimientoParcelario/GetMantenedorParcelarioView/${response.ParcelaID}?UnidadTributariaId=0&finalizarAltaAlfa=true`);
+                        }
+                    }
+                } 
+            } catch (error) {
+                hideLoading();
+                mostrarMensajeErrorAltaAlfa([error.message || "Ocurrió un error inesperado."], "Error", true);
+            }
+        });
+
+        
+    });
+
+    function actualizarArbol(treeInstance) {
+        var selectedValue = parseInt($('#cboTipoUT').val());
+        var displayText = '';
+        switch (selectedValue) {
+            case 1:
+                displayText = 'UT: COM ' + $("#UnidadTributaria_CodigoProvincial").val();
+                break;
+            case 2:
+                displayText = 'UT: PH ' + $("#UnidadTributaria_CodigoProvincial").val();
+                break;
+            case 3:
+                displayText = 'UT: UF ' + $("#UnidadTributaria_UnidadFuncional").val();
+                break;
+            case 4:
+                displayText = 'UT: PHE ' + $("#UnidadTributaria_CodigoProvincial").val();
+                break;
+            case 5:
+                displayText = 'UT: UP ' + $("#UnidadTributaria_CodigoProvincial").val();
+                break;
+            case 6:
+                displayText = 'UT: UC ' + $("#UnidadTributaria_UnidadFuncional").val();
+                break;
+            default:
+                displayText = 'UT: XX';
+        }
+        var childNodeId = "ut_node";
+        var childNode = treeInstance.get_node(childNodeId);
+        if (childNode) {
+            $('#ut_node_anchor').html(`<i class="jstree-icon jstree-themeicon" role="presentation"></i>${displayText}`);
+        }
+    }
+
+    function mostrarMensajeAltaAlfa(mensajes, titulo, tipo) {
+        $(".modal-title", $("#modal-alta-alfa")).html(titulo);
+        $("[role='alert'] > p", $("#modal-alta-alfa")).html(mensajes.join("<br/>"));
+        $("[role='alert']", $("#modal-alta-alfa"))
+            .removeClass("alert-danger alert-success alert-info alert-warning")
+            .addClass(tipo);
+        $(".modal-footer", $("#modal-alta-alfa")).hide();
+        $("[role='button']", $("#modal-alta-alfa")).off("click");
+        $("#modal-alta-alfa").modal("show");
+    }
+
+    function mostrarMensajeErrorAltaAlfa(mensajes, titulo, error) {
+        return mostrarMensajeAltaAlfa(mensajes, titulo, (error || false ? "alert-danger" : "alert-warning"));
+    }
+
+    function mostrarMensajeGeneralAltaAlfa(mensajes, titulo, confirmacion) {
+        mostrarMensajeAltaAlfa(mensajes, titulo, (confirmacion ? "alert-warning" : "alert-success"));
+        if (confirmacion) {
+            $(".modal-footer", $("#modal-alta-alfa")).show();
+            return new Promise(ok => {
+                $("#modal-alta-alfa").off("hidden.bs.modal").one("hidden.bs.modal", ok.bind(null, false))
+                $("[role='button']", $("#modal-alta-alfa")).on("click", ok.bind(null, true));
+            });
+        }
+        return Promise.resolve(true);
+    }
+
+</script>

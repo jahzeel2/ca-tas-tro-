@@ -1,0 +1,63 @@
+﻿#modal-window-bandeja .body-content {
+    max-height: calc(100vh - 160px);
+    overflow: hidden;
+}
+
+    #modal-window-bandeja .body-content > .panel > .panel-body {
+        margin: 0px;
+    }
+    #modal-window-bandeja .body-content > .panel > .panel-title ~ .panel-body {
+        margin: 10px;
+    }
+#modal-window-bandeja .modal-footer {
+    padding: 10px 15px;
+}
+#modal-window-bandeja .modal-footer > .buttons {
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+}
+
+.bandeja-body thead tr.filtros th {
+    padding: 5px;
+}
+
+.bandeja-body table tr > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    white-space: nowrap;
+}
+
+.bandeja-body thead tr.filtros th .form-control.input-sm {
+    width: 100%;
+}
+
+.btn-accion {
+    background-color: #127796;
+    color: #fff;
+}
+
+    .btn-accion:hover,
+    .btn-accion:focus,
+    .btn-accion.focus,
+    .btn-accion:active,
+    .btn-accion.active {
+        color: #fff;
+        background-color: #00BAEB;
+    }
+
+    .btn-accion + ul.dropdown-menu li:hover a {
+        background-color: #B0BED9;
+    }
+
+.dropdown-divider {
+    height: 0;
+    margin: .5rem 0;
+    overflow: hidden;
+    border-top: 1px solid #e9ecef;
+}
+
+
+

@@ -1,0 +1,29 @@
+﻿@using GeoSit.Client.Web.Models.FormularioValuacion;
+@model Tuple<SuperficieRuralModel, int>
+
+<div class="superficie-formateada superficie-parcela-@(Model.Item2==1?"mayor":Model.Item2==-1?"menor":"igual")">
+    <div class="componente">
+        <label>Ha</label>
+        <input readonly="readonly" type="number" value="@Model.Item1.Hectarea" />
+    </div>
+
+    <div class="componente">
+        <label>&Aacute;rea</label>
+        <input readonly="readonly" type="number" value="@Model.Item1.Area" />
+    </div>
+
+    <div class="componente">
+        <label>M<sup>2</sup></label>
+        <input readonly="readonly" type="number" value="@Model.Item1.M2" />
+    </div>
+
+    <div class="componente">
+        <label>Dm<sup>2</sup></label>
+        <input readonly="readonly" type="number" value="@Model.Item1.Dm2" />
+    </div>
+
+    <div class="componente">
+        <label>Cm<sup>2</sup></label>
+        <input readonly="readonly" type="number" value="@Model.Item1.Cm2" />
+    </div>
+</div>

@@ -1,0 +1,12 @@
+﻿@using GeoSit.Data.BusinessEntities.ModuloPloteo;
+@model Plantilla
+
+@foreach (var t in (Model.PlantillaTextos ?? new PlantillaTexto[0]).Where(t => t.Tipo == 2 && !t.Origen.Contains("@")))
+{
+<div class="form-group row">
+    <label for="texto_@t.IdPlantillaTexto" id="label_@t.IdPlantillaTexto" class="control-label col-xs-3">@t.Origen</label>
+    <div class="col-xs-9">
+        <input type="text" id="texto_@t.IdPlantillaTexto" class="form-control">
+    </div>
+</div>
+}

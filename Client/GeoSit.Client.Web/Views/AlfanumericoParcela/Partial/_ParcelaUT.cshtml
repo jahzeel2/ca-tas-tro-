@@ -1,0 +1,214 @@
+﻿@using GeoSit.Client.Web.Controllers;
+@using GeoSit.Data.BusinessEntities.Inmuebles;
+@model GeoSit.Client.Web.ViewModels.ParcelaUTViewModel
+
+@{
+    var nomenclatura = ViewData["Nomenclatura"] as Dictionary<string, string>;
+}
+
+<div class="row" style="margin-top: 5px;">
+    <div class="col-xs-12">
+        <div class="panel-title">Parcela</div>
+    </div>
+</div>
+
+<div class="row" style="text-align: center; margin-bottom: 20px;">
+    <div class="col-xs-12" id="nomenclatura-parcela">
+        <form class="alta-nomenclatura">
+            <div class="nomenclatura">
+                <div class="componente">
+                    <label>DTO</label>
+                    <input name="departamento" placeholder="00" maxlength="2" pattern="\d{1,2}" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="form-control" value="@(nomenclatura["Dep"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>CIRC</label>
+                    <input name="circunscripcion" placeholder="000" maxlength="3" pattern="\d{1,3}" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="form-control" value="@(nomenclatura["Circ"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>SEC</label>
+                    <input name="seccion" placeholder="00" maxlength="2" pattern="\d?[a-zA-Z]?" class="form-control" value="@(nomenclatura["Sec"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>CH</label>
+                    <input name="chacra" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Cha"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>QUI</label>
+                    <input name="quinta" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Qui"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>FRA</label>
+                    <input name="fraccion" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Fra"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>MZA</label>
+                    <input name="manzana" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" value="@(nomenclatura["Man"])" readonly />
+                </div>
+                <div class="componente">
+                    <label>PARC</label>
+                    <input name="parcela" placeholder="00000" maxlength="5" pattern="^\d{0,5}$" class="form-control" value="@(nomenclatura["Par"])" readonly />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row" style="border-top: 1px solid #5f6266; padding-top: 20px;">
+    <div class="col-xs-4">
+        <div class="form-group row">
+            <label class="col-xs-2 col-form-label">Tipo</label>
+            <div class="col-xs-10">
+                @Html.DropDownListFor(
+                    model => model.Parcela.TipoParcelaID,
+                    new SelectList((List<SelectListItem>)ViewData["TiposParcela"], "Value", "Text", Model.Parcela.TipoParcelaID),
+                    new { @class = "form-control", id = "cboTipo", @disabled = "disabled", }
+                )
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-4">
+        <div class="form-group row">
+            <label class="col-xs-2 col-form-label">Clase</label>
+            <div class="col-xs-10">
+                @Html.DropDownListFor(
+                    model => model.Parcela.ClaseParcelaID,
+                    new SelectList((List<SelectListItem>)ViewData["ClasesParcela"], "Value", "Text", Model.Parcela.ClaseParcelaID),
+                    new { @class = "form-control", id = "cboClase", @disabled = "disabled", }
+                )
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-4">
+        <div class="form-group row">
+            <label class="col-xs-4 col-form-label" style="margin-top: -3px;">Sup Tierra Registrada</label>
+            <div class="col-xs-6">
+                @Html.TextBoxFor(m => m.Parcela.Superficie, "{0:0.0000}", new { @class = "form-control", @id = "SuperficieRegistrada" })
+            </div>
+            @{
+                <label class="col-xs-2 col-form-label superficieLabel" style="margin-left: -15px">@((Model.Parcela.TipoParcelaID == 2 || Model.Parcela.TipoParcelaID == 3) ? "ha" : "m²")</label>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="form-group row">
+            <label for="observaciones" class="col-xs-12 col-form-label" style="margin-left: 1px">Observaciones</label>
+            <div class="col-xs-12">
+                @Html.TextArea("observacionesParcela", ViewData["Observaciones"].ToString(), new { @class = "form-control", style = "height: 50px;" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xs-12">
+        <div class="panel-title">Unidad Tributaria</div>
+    </div>
+</div>
+
+<div class="row" style="text-align: center; margin-bottom: 20px;">
+    <input type="hidden" id="unidadTributariaId" value="@Model.UnidadTributaria.UnidadTributariaId" />
+    <div class="col-xs-3"></div>
+    <div class="col-xs-3">
+        <div class="row">
+            <label class="col-xs-12 col-form-label" style="font-size: 16px;">Partida</label>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                @Html.TextBoxFor(model => model.UnidadTributaria.CodigoProvincial, new { @class = "form-control uppercase", style = "text-align: center; font-size: 17px; font-weight: bold; color: #0085fd;", inputmode = "numeric", maxlength = "8", oninput = "this.value = this.value.replace(/[^0-9]/g, '')" })
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-3">
+        <div class="row">
+            <label class="col-xs-12 col-form-label" style="font-size: 16px;">UF</label>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                @Html.TextBoxFor(model => model.UnidadTributaria.UnidadFuncional, new { @class = "form-control", style = "text-align: center; font-size: 17px; font-weight: bold; color: #0085fd;", maxlength = "5", @readonly = "readonly" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-3"></div>
+</div>
+
+<div class="row" style="border-top: 1px solid #5f6266; padding-top: 20px;">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label">Tipo</label>
+            <div class="col-xs-8">
+                @Html.DropDownListFor(model => model.UnidadTributaria.TipoUnidadTributariaID, (List<SelectListItem>)ViewData["TiposUnidadTributaria"], new { @class = "form-control", @disabled = "disabled", id = "cboTipoUT" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-offset-1 col-xs-3 col-form-label">Piso-Dept</label>
+            <div class="col-xs-8">
+                @Html.TextBoxFor(model => model.UnidadTributaria.Piso, new { @class = "form-control", inputmode = "numeric", maxlength = "5", oninput = "this.value = this.value.replace(/[^0-9]/g, '')" })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label">Cant. UF</label>
+            <div class="col-xs-8">
+                @Html.TextBox("cantidadUF", ViewData["CantidadUF"], new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-offset-1 col-xs-3 col-form-label">%Coprop</label>
+            <div class="col-xs-8">
+                @Html.TextBoxFor(model => model.UnidadTributaria.PorcentajeCopropiedad, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="form-group row">
+            <label for="observaciones" class="col-xs-12 col-form-label" style="margin-left: 1px">Observaciones</label>
+            <div class="col-xs-12">
+                @Html.TextAreaFor(model => model.UnidadTributaria.Observaciones, new { @class = "form-control", rows = "6", style = "height: 50px;" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#UnidadTributaria_UnidadFuncional, #UnidadTributaria_CodigoProvincial').on('blur input', function () {
+            actualizarArbol($('#arbol').jstree(true));
+        });
+
+        $("#SuperficieRegistrada").on("input", function () {
+            var value = $(this).val();
+            value = value.replace(',', '.');
+            if (!/^\d*\.?\d*$/.test(value)) {
+                $(this).val(value.slice(0, -1));
+                return;
+            }
+            if (value.includes(".")) {
+                var decimals = value.split(".")[1];
+                if (decimals.length > 4) {
+                    $(this).val(parseFloat(value).toFixed(4));
+                } else {
+                    $(this).val(value);
+                }
+            } else {
+                $(this).val(value);
+            }
+        });
+
+    });
+</script>

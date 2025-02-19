@@ -1,0 +1,87 @@
+﻿@using GeoSit.Data.BusinessEntities.ModuloPloteo;
+@model Plantilla
+
+<div class="panel plantilla-detalle">
+    <div class='panel-heading bg-primary'>
+        <a href="javascript:void(0)">
+            <div class="panel-title">@Model.Nombre</div>
+        </a>
+    </div>
+    <div class="panel-body options-body">
+        @Html.HiddenFor(model => model.IdPlantilla)
+        @Html.Hidden("idComponentePrincipal", ViewData["idComponentePrincipal"])
+        <div class="grid-row">
+            @Html.Partial("Partial/_ResumenPlantilla", Model)
+        </div>
+        <div class="grid-row">
+            <div id="accordion-opciones-ploteo" class="section-position-ploteador">
+                <div class="panel remove-shadow">
+                    <div class="panel-heading bg-primary main-heading">
+                        <a data-toggle="collapse" data-parent="#accordion-opciones-ploteo" href="#collapse-opciones"
+                           aria-expanded="false" aria-controls="#collapse-opciones">
+                            <div class="panel-title">
+                                Opciones
+                                <i class="fa"></i>
+                            </div>
+                        </a>
+                    </div>
+                    <div id="collapse-opciones" class="panel-collapse collapse in" aria-expanded="true">
+                        <div class="col-xs-12">
+                            <div class="panel-body">
+                                <fieldset>
+                                    @Html.Partial("Partial/_Transparencia", Model)
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Objetos</legend>
+                                    <div class="form-group row">
+                                        <div class="col-xs-12">
+                                            <label class="cursor-pointer">
+                                                <input style=" margin-top: 2px" class="rcheck" id="radioVisualizacion" type="radio" name="optradio" checked />
+                                                Visualización Actual
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-xs-6">
+                                            <label class="cursor-pointer">
+                                                <input style=" margin-top: 2px" class="rcheck" id="radioColeccionGral" type="radio" name="optradio" />
+                                                Por Colección
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div id="divColeccionGral" class="form-group row" style="display: none;">
+                                        <div class="col-xs-6">
+                                            <select class="form-control select2" id="cboColeccionesGral">
+                                                <option value="0">Seleccione una Colección</option>
+                                                @foreach (var coleccion in ViewBag.Colecciones)
+                                                {
+                                                    <option value="@coleccion.ColeccionId">@coleccion.Nombre</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <label class="badge" id="lblColeccionCompuesta"></label>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Textos Variables</legend>
+                                    <div class="col-xs-offset-1 col-xs-11">
+                                        <div id="listTextosVariables">
+                                            @Html.Partial("Partial/_TextosVariablesGeneral", Model)
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/Scripts/Ploteo/ploteoGeneral.js"></script>
+<script>
+    $(document).trigger({ type: "plantilla-cargada", controller: PloteoGeneralController() });
+</script>

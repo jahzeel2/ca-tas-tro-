@@ -1,0 +1,354 @@
+﻿@using GeoSit.Client.Web.Controllers
+
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/AlfanumericoParcela.css" rel="stylesheet" />
+
+<style>
+    #modal-window-alfanumerico-parcelas .alfanumerico-body label {
+        text-align: center;
+    }
+
+    #modal-window-alfanumerico-parcelas #nomenclatura-parcela form .nomenclatura {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2px;
+    }
+
+        #modal-window-alfanumerico-parcelas #nomenclatura-parcela form .nomenclatura .componente {
+            display: grid;
+            flex: 0;
+            flex-basis: 75px;
+        }
+
+            #modal-window-alfanumerico-parcelas #nomenclatura-parcela form .nomenclatura .componente label {
+                font-size: 1.5rem;
+            }
+
+            #modal-window-alfanumerico-parcelas #nomenclatura-parcela form .nomenclatura .componente input {
+                text-transform: uppercase;
+                font-size: 1.7rem !important;
+                font-weight: bold;
+                color: #0085fd;
+                text-align: center;
+            }
+</style>
+
+<div class="modal fade theme_new" id="modal-window-alfanumerico-parcelas" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="scroll-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Validar Nomenclatura</h3>
+                    <span class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                <div class="modal-body alfanumerico-body">
+                    <div class="alfanumerico-content body-content">
+                        <div class="panel-group remove-margin">
+                            <div class="accordion alfanumerico-datos" id="accordion-alfanumerico">
+                                <div class="panel-group remove-margin">
+                                    <div class="row" style="text-align: center; margin-bottom: 20px;">
+                                        <div class="col-xs-12" id="nomenclatura-parcela">
+                                            <form class="buscador">
+                                                <div class="nomenclatura">
+                                                    <div class="componente">
+                                                        <label>DTO</label>
+                                                        <input name="departamento" placeholder="00" maxlength="2" pattern="\d{1,2}" inputmode="numeric" oninput="this.value = Math.max(0, Math.min(25, this.value.replace(/[^0-9]/g,'')));" class="form-control" max="25" min="0">
+                                                    </div>
+                                                    <div class="componente">
+                                                        <label>CIRC</label>
+                                                        <input name="circunscripcion" placeholder="000" maxlength="3" pattern="\d{1,3}" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="form-control" />
+                                                    </div>
+                                                    <div class="componente">
+                                                        <label>SEC</label>
+                                                        <input name="seccion" placeholder="00" maxlength="2" pattern="\d?[a-zA-Z]?" class="form-control" />
+                                                    </div>
+                                                    <div class="componente">
+                                                        <label>CH</label>
+                                                        <input name="chacra" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" />
+                                                    </div>
+                                                    <div class="componente">
+                                                        <label>QUI</label>
+                                                        <input name="quinta" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" />
+                                                    </div>
+                                                    <div class="componente">
+                                                        <label>FRA</label>
+                                                        <input name="fraccion" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" />
+                                                    </div>
+                                                    <div class="componente">
+                                                        <label>MZA</label>
+                                                        <input name="manzana" placeholder="0000" maxlength="4" pattern="[a-zA-Z0-9]{1,4}" class="form-control" />
+                                                    </div>
+                                                    <div class="componente">
+                                                        <label>PARC</label>
+                                                        <input name="parcela" placeholder="00000" maxlength="5" pattern="^\d{0,5}$" class="form-control" />
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="form-group row">
+                                                <label class="col-xs-4 col-form-label">Tipo Parcela</label>
+                                                <div class="col-xs-7">
+                                                    @Html.DropDownList(
+                                                        "cboTipoParcela",
+                                                        new List<SelectListItem>
+                                                        {
+                                                            new SelectListItem { Text = "-- Seleccione --", Value = "", Disabled = true, Selected = true }
+                                                        }.Concat((List<SelectListItem>)ViewData["TiposParcela"]),
+                                                        new { @class = "form-control" }
+                                                    )
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-6">
+                                            <div class="form-group row">
+                                                <label class="col-xs-4 col-form-label">Clase Parcela</label>
+                                                <div class="col-xs-7">
+                                                    @Html.DropDownList(
+                                                        "cboClaseParcela",
+                                                        new List<SelectListItem>
+                                                        {
+                                                            new SelectListItem { Text = "-- Seleccione --", Value = "", Disabled = true, Selected = true }
+                                                        }.Concat((List<SelectListItem>)ViewData["ClasesParcela"]),
+                                                        new { @class = "form-control" }
+                                                    )
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="border-top: 1px solid #5f6266; padding-top: 20px;">
+                                        <div class="col-xs-6">
+                                            <div class="form-group row">
+                                                <label class="col-xs-4 col-form-label">Tipo Unidad Tributaria</label>
+                                                <div class="col-xs-7">
+                                                    @Html.DropDownList(
+                                                        "cboTipoUT",
+                                                        (IEnumerable<SelectListItem>)ViewData["TiposUnidadTributaria"],
+                                                        new { @class = "form-control", disabled = "disabled" }
+                                                    )
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div class="form-group row">
+                                                <label class=col-xs-4 col-form-label">Cantidad UF</label>
+                                                <div class="col-xs-7">
+                                                    @Html.TextBox(
+                                                        "CantidadUF",
+                                                        0,
+                                                        new
+                                                        {
+                                                            @class = "form-control",
+                                                            type = "number",
+                                                            step = "1",
+                                                            min = "2",
+                                                            max = "1500",
+                                                            @readonly = "readonly",
+                                                            oninput = "if (this.value > 1500) this.value = 1500;",
+                                                            onblur = "if (this.value === '') { this.value = 2; }"
+                                                        }
+                                                    )
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-4 pull-right">
+                    <span data-placement="right" title="Validar" data-original-title="Validar" id="buscar-nomenclatura" class="fa fa-search fa-2x black pull-right cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade theme_new mensaje" id="modal-info-alfanumerico" tabindex="-3" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Titulo</h3>
+                <span class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" title="Cerrar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <p>Descripcion de la informacion</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-4 pull-right">
+                    <span role="button" data-dismiss="modal" title="Aceptar" class="fa fa-check-circle fa-3x light-blue cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="buscador-container"></div>
+
+<script src="~/Scripts/jquery.form.js"></script>
+<script src="~/Scripts/formValidation.min.js"></script>
+<script src="~/Scripts/bootstrapValidation.min.js"></script>
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/dataTables.bootstrap.js"></script>
+<script src="~/Scripts/AlfanumericoParcela/service.js"></script>
+<script src="~/Scripts/AlfanumericoParcela/store.js"></script>
+<script src="~/Scripts/AlfanumericoParcela/main.js"></script>
+
+<script>
+    AdministradorOperacionesAlfanumericasController("#modal-window-alfanumerico-parcelas", createStore(createService()));
+
+    $('#cboClaseParcela').on('change', function () {
+        const selectedValue = $(this).val();
+        if (selectedValue === "3" || selectedValue === "4") {
+            $('#CantidadUF').prop('readonly', false);
+            $('#CantidadUF').val('2');
+            $('#cboTipoUT option[value="1"]').hide();
+            $('#cboTipoUT option').not('[value="1"]').show();
+            if (selectedValue === "3") {
+                $('#cboTipoUT').val('2');
+            } else if (selectedValue === "4") {
+                $('#cboTipoUT').val('4');
+            }
+        } else {
+            $('#CantidadUF').prop('readonly', true);
+            $('#CantidadUF').val('0');
+            $('#cboTipoUT option[value="1"]').show();
+            $('#cboTipoUT option').not('[value="1"]').hide();
+            $('#cboTipoUT').val('1');
+        }
+    });
+
+    $("#nomenclatura-parcela input").each(function () {
+        let inputName = $(this).attr("name");
+        if (["chacra", "quinta", "fraccion", "manzana"].includes(inputName)) {
+            $(this).on("blur", function () {
+                this.value = this.value.padStart(4, "0");
+            });
+        }
+        else if (["departamento", "seccion"].includes(inputName)) {
+            $(this).on("blur", function () {
+                this.value = this.value.padStart(2, "0");
+            });
+        }
+        else if (inputName === "parcela") {
+            $(this).on("blur", function () {
+                this.value = this.value.padStart(5, "0");
+            });
+        }
+        else if (inputName === "circunscripcion") {
+            $(this).on("blur", function () {
+                this.value = this.value.padStart(3, "0");
+            });
+        }
+    });
+
+    $('#buscar-nomenclatura').on('click', async function () {
+        const validacionExito = validarCampos();
+        if (!validacionExito) return;
+
+        if ($("#CantidadUF").val() >= 100) {
+            const validarCantUf = await mostrarMensajeGeneral(["La cantidad de unidades funcionales ingresadas (" + $("#CantidadUF").val() + ") es considerablemente alta. Este proceso podría tomar más tiempo del habitual para registrar dicha cantidad en la base de datos.", "", "¿Está seguro que desea continuar?"], "Registro Unidades Funcionales", true);
+            if (!validarCantUf) return;
+        }
+
+        var nomenclaturaString = "";
+        $("#nomenclatura-parcela input").each(function () {
+            nomenclaturaString += $(this).val();
+        });
+
+        const datosGenerales = {
+            nomenclatura: nomenclaturaString,
+            tipoParcelaID: $("#cboTipoParcela").val(),
+            claseParcelaID: $("#cboClaseParcela").val(),
+            tipoUTid: $("#cboTipoUT").val(),
+            cantidadUF: $("#CantidadUF").val()
+        };
+
+        if (nomenclaturaString) {
+            showLoading();
+            $.ajax({
+                url: BASE_URL + "AlfanumericoParcela/ValidarNomenclatura",
+                type: 'GET',
+                data: datosGenerales,
+                success: function (response, textStatus, xhr) {
+                    var contentType = xhr.getResponseHeader("Content-Type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        if (response.mensaje) {
+                            mostrarMensajeGeneral([response.mensaje], "Validar Nomenclatura");
+                        }
+                    } else if (contentType && contentType.indexOf("text/html") !== -1) {
+                        $('#buscador-container').html(response)
+                            .find('.modal').first().one('hidden.bs.modal', () => { $('#buscador-container').empty(); });
+                    } else {
+                        mostrarMensajeError(["Error inesperado en la respuesta."], "Validar Nomenclatura - Error");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    mostrarMensajeError(["Error al validar la nomenclatura: " + error], "Validar Nomenclatura - Error");
+                },
+                complete: hideLoading
+            });
+        } else {
+            mostrarMensajeError(["Por favor ingresa una nomenclatura."], "Validar Nomenclatura - Error", true);
+            hideLoading();
+        }
+    });
+
+    function validarCampos() {
+        let validacionExito = true;
+        $('.alfanumerico-body select').each(function () {
+            if ($(this).val() == null || $(this).val() === "") {
+                mostrarMensajeError(["Debe seleccionar una opción para tipo y/o clase de parcela."], "Validar Nomenclatura - Error", true);
+                validacionExito = false;
+                return false;
+            }
+        });
+        $("#nomenclatura-parcela input").each(function () {
+            if ($(this).val().trim() === "") {
+                mostrarMensajeError(["Todos los campos que corresponden a la nomenclatura son obligatorios."], "Validar Nomenclatura - Error", true);
+                validacionExito = false;
+                return false;
+            }
+        });
+        return validacionExito;
+    }
+
+    function mostrarMensaje(mensajes, titulo, tipo) {
+        $(".modal-title", $("#modal-info-alfanumerico")).html(titulo);
+        $("[role='alert'] > p", $("#modal-info-alfanumerico")).html(mensajes.join("<br/>"));
+        $("[role='alert']", $("#modal-info-alfanumerico"))
+            .removeClass("alert-danger alert-success alert-info alert-warning")
+            .addClass(tipo);
+        $(".modal-footer", $("#modal-info-alfanumerico")).hide();
+        $("[role='button']", $("#modal-info-alfanumerico")).off("click");
+        $("#modal-info-alfanumerico").modal("show");
+    }
+
+    function mostrarMensajeError(mensajes, titulo, error) {
+        return mostrarMensaje(mensajes, titulo, (error || false ? "alert-danger" : "alert-warning"));
+    }
+
+    function mostrarMensajeGeneral(mensajes, titulo, confirmacion) {
+        mostrarMensaje(mensajes, titulo, (confirmacion ? "alert-warning" : "alert-success"));
+        if (confirmacion) {
+            $(".modal-footer", $("#modal-info-alfanumerico")).show();
+            return new Promise(ok => {
+                $("#modal-info-alfanumerico").off("hidden.bs.modal").one("hidden.bs.modal", ok.bind(null, false))
+                $("[role='button']", $("#modal-info-alfanumerico")).on("click", ok.bind(null, true));
+            });
+        }
+        return Promise.resolve(true);
+    }
+
+</script>

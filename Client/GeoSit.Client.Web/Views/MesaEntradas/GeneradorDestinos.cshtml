@@ -1,0 +1,86 @@
+﻿@using GeoSit.Data.BusinessEntities.MesaEntradas.DTO;
+
+@model GeneradorDestinos
+
+<style>
+    #modal-alta-destinos [type=submit] {
+        padding:0;
+        background:none !important;
+        box-shadow:none !important;
+        outline: none !important;
+    }
+</style>
+
+<div class="modal fade theme_new" id="modal-alta-destinos" data-backdrop="false" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form-horizontal">
+                <div class="scroll-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">@ViewData["title"]</h3>
+                        <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="body-content">
+                            <div class="panel remove-shadow remove-margin">
+                                <div class="panel-body">
+                                    @Html.HiddenFor(model => model.IdTramite)
+                                    <div class="form-group">
+                                        <div class="col-xs-offset-1 col-xs-10">
+                                            <label class="control-label col-xs-3 text-right">
+                                                Cantidad:
+                                            </label>
+                                            <div class="col-xs-9">
+                                                @Html.TextBoxFor(model => model.Cantidad, new { @class = "form-control text-primary", @min = "1", @type = "number" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @Html.Partial(ViewData["view"].ToString(), Model)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-xs-4 pull-right">
+                            <button type="submit" data-placement="right" title="Generar" data-original-title="Generar" class="btn cursor-pointer">
+                                <span class="fa fa-check-circle light-blue fa-2x"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery.form.js"></script>
+<script>
+    function init() {
+        const container = "#modal-alta-destinos",
+            ok = ({ error, mensajes, data }) => {
+                if (error) {
+                    showError(mensajes);
+                    return;
+                }
+                $(container).parent().trigger({ type: "destinosGenerados", destinos: data });
+                $(container).modal("hide");
+            }, showError = (messages, type) => {
+                const params = { messages, type: type || TIPO_MSG.ERROR };
+                $(container).parent().trigger({ type: "mostrarMensaje", params });
+            };
+        $(container)
+            .one("shown.bs.modal", hideLoading)
+            .modal("show");
+        $("form", container)
+            .ajaxForm({
+                beforeSubmit: showLoading,
+                type: "POST",
+                url: "@Url.Action(ViewData["url"].ToString())",
+                success:  ok,
+                error: showError.bind(null, ["Ha ocurrido un error al generar los objetos."]),
+                complete: hideLoading
+            })
+            .submit(() => false);
+    }
+    $(document).ready(init);
+</script>

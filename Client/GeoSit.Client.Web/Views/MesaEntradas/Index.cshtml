@@ -1,0 +1,123 @@
+﻿@model GeoSit.Client.Web.ViewModels.BandejaMesaEntradasViewModel
+@{
+    string title = "Bandeja de Trámites";
+}
+
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/mesaEntradas.css" rel="stylesheet" />
+
+<div class="modal fade theme_new" id="modal-window-bandeja" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-fullwidth">
+        <div class="modal-content">
+            <div class="scroll-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">@string.Format("{0} - {1}", title, ViewData["Sector"])</h3>
+                    <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="body-content">
+                        <div class="panel remove-shadow">
+                            @if (!Model.EsProfesional)
+                            {
+                                <div class="panel-title">
+                                    <ul id="tabsBandejas" class="nav nav-tabs">
+                                        <li class="nav-item active" data-tab="propios">
+                                            <a class="nav-link" href="#tabPropios" data-toggle="tab">Mis Tr&aacute;mites</a>
+                                        </li>
+                                        <li class="nav-item" data-tab="sector">
+                                            <a class="nav-link" href="#tabSector" data-toggle="tab">Mi Sector</a>
+                                        </li>
+                                        <li class="nav-item" data-tab="catastro">
+                                            <a class="nav-link" href="#tabCatastro" data-toggle="tab">DPCyC</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                            <div class="panel-body bandeja-body">
+                                <div class="tab-content">
+                                    <div id="tabPropios" role="tabpanel" class="tab-pane active">
+                                        <div class="tab-content-data">
+                                            @{
+                                                var attrsPropios = new ViewDataDictionary();
+                                                attrsPropios.Add("name", "grilla-propios");
+                                                attrsPropios.Add("role", "1");
+                                            }
+                                            @Html.Partial("Partial/GrillaBandeja", Model, attrsPropios)
+                                        </div>
+                                    </div>
+                                    <div id="tabSector" role="tabpanel" class="tab-pane">
+                                        <div class="tab-content-data">
+                                            @{
+                                                var attrsSector = new ViewDataDictionary();
+                                                attrsSector.Add("name", "grilla-sector");
+                                                attrsSector.Add("role", "2");
+                                            }
+                                            @Html.Partial("Partial/GrillaBandeja", Model, attrsSector)
+                                        </div>
+                                    </div>
+                                    <div id="tabCatastro" role="tabpanel" class="tab-pane">
+                                        <div class="tab-content-data">
+                                            @{
+                                                var attrsCatastro = new ViewDataDictionary();
+                                                attrsCatastro.Add("name", "grilla-catastro");
+                                                attrsCatastro.Add("role", "3");
+
+                                            }
+                                            @Html.Partial("Partial/GrillaBandeja", Model, attrsCatastro)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="buttons">
+                        <div class="btn-group dropup btn-acciones">
+                            <button type="button" class="btn btn-accion dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Acciones <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu"></ul>
+                        </div>
+                        <button class="btn btn-secondary" id="refreshButton" title="Refrescar">
+                            <span>Refrescar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="form-container"></div>
+
+<div class="modal fade theme_new mensaje" id="mensajeBandeja" tabindex="-2" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Titulo</h3>
+                <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cancelar" title="Cancelar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <p></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-4 pull-right">
+                    <span role="button" aria-hidden="true" data-dismiss="modal" title="Aceptar" data-original-title="Aceptar" class="fa fa-check-circle light-blue fa-3x cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/dataTables.bootstrap.js"></script>
+<script src="~/Scripts/MesaEntradas/serviceBandeja.js"></script>
+<script src="~/Scripts/MesaEntradas/storeBandeja.js"></script>
+<script src="~/Scripts/MesaEntradas/main.js"></script>
+
+<script>
+    BandejaTramitesController("#modal-window-bandeja", @(Model.EsProfesional ? "true" : "false"), createStoreBandeja(createServiceBandeja()));
+</script>

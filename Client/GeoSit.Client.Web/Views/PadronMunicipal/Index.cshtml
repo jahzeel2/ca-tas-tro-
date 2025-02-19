@@ -1,0 +1,155 @@
+﻿@model GeoSit.Client.Web.Models.ObjetoAdministrativoModel
+
+@{
+    ViewBag.Title = "Padrón de Inmuebles Municipales";
+}
+
+<link href="~/Content/css/select2.css" rel="stylesheet" />
+<link href="~/Content/select2-bootstrap.min.css" rel="stylesheet" />
+
+<div class="modal fade theme_new" id="modal-window-padron-municipal" tabindex="-1" data-backdrop="true" role="dialog" aria-labelledby="modal-label-dominio" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="scroll-content-padron-municipal" class="scroll-content">
+                <div id="message-error" class="alert alert-danger">
+                    <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
+                    <p></p>
+                </div>
+                <div class="modal-header">
+                    <h3 class="modal-title" id="lblModal-padron-municipal">@ViewBag.Title</h3>
+                    <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                <div class="modal-body padron-municipal-body">
+                    <div class="body-content">
+                        <div class="panel-group remove-margin">
+                            <div class="panel panel-default remove-shadow">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="form-group col-xs-12">
+                                            <label class="control-label col-xs-4">Municipio</label>
+                                            <div class="col-xs-12">
+                                                @Html.DropDownListFor(model => model.Nombre, (SelectList)ViewData["Nombre"], "Seleccionar", new { @class = "form-control select2", @id = "municipios" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-xs-12">
+                                            <label class="control-label col-xs-6">Tipo de Informe</label>
+                                            <div class="col-xs-12">
+                                                @Html.DropDownList("TipoInforme", new SelectList(new List<SelectListItem>{new SelectListItem { Text = "Unidades Tributarias", Value = "1" },
+                                                                                                 new SelectListItem { Text = "Parcelas", Value = "2" },}, "Value", "Text"), "Seleccionar", new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-xs-8" style="padding-left: 190px">
+                                                <label class="control-label col-xs-4">Vigente</label>
+                                                <div class="col-xs-2">
+                                                    <input type="radio" id="vigente" name="options" value="option1" checked>
+                                                </div>
+                                                <label class="control-label col-xs-4" data-toggle="tooltip" data-placement="bottom" title="Inmuebles de Baja">Histórico</label>
+                                                <div class="col-xs-2">
+                                                    <input type="radio" id="historico" name="options" value="option2">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-xs-4 pull-right">
+                            <span id="btnCancelar" aria-hidden="true" data-placement="right" title="Cancelar" data-original-title="Cancelar" class="fa fa-undo fa-2x black cursor-pointer"></span>
+                            <span id="btnGenerar" aria-hidden="true" data-placement="right" title="Generar" data-original-title="Generar" class="fa fa-file-excel-o fa-2x black cursor-pointer"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/jquery.form.js"></script>
+    <script src="~/Scripts/formValidation.min.js"></script>
+    <script src="~/Scripts/bootstrapValidation.min.js"></script>
+    <script src="~/Scripts/select2.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            $("#modal-window-padron-municipal").modal({
+                backdrop: 'static',  // Prevent clicking outside the modal from closing it
+            });
+
+            $('[data-toggle="tooltip"]').tooltip();
+            $("#municipios").select2();
+
+            $("#modal-window-padron-municipal").one('shown.bs.modal', hideLoading).modal('show');
+
+            $("#btnCancelar").on('click', function () {
+                $("#modal-window-padron-municipal").modal('hide');
+            });
+
+            const form = $(".padron-municipal-body");
+
+            form.bootstrapValidator({
+                framework: "bootstrap",
+                excluded: [":disabled"],
+                fields: {
+                    Nombre: {
+                        validators: {
+                            notEmpty: {
+                                message: 'El campo es obligatorio'
+                            },
+                        }
+                    },
+                    TipoInforme: {
+                        validators: {
+                            notEmpty: {
+                                message: 'El campo es obligatorio'
+                            },
+                        }
+                    },
+                }
+            });
+
+            // Define la función generarInforme
+            function generarInforme() {
+                var loc = BASE_URL + "PadronMunicipal/DownloadFile";
+                var idMun = $('#municipios').val();
+                var nomMun = $('#municipios option:selected').text();
+                var vigentes = $("#vigente").is(":checked") ? true : false;
+                var tipoInformeParcelario = $("#TipoInforme").val() == 2 ? true : false;
+
+                var bootstrapValidator = form.data("bootstrapValidator");
+                bootstrapValidator.validate();
+
+                if (bootstrapValidator.isValid()) {
+                    showLoading();
+                    $.ajax({
+                        url: BASE_URL + "PadronMunicipal/InformePadronMunicipal",
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded",
+                        data: {
+                            idMunicipio: idMun,
+                            vigentes: vigentes,
+                            tipoInformeParcelario: tipoInformeParcelario,
+                            nomMunicipio: nomMun
+                        },
+                        success: function () {
+                            window.location = loc;
+                        },
+                        error: function (error) {
+                            //mostrarMensaje("Generar Informe Padrón Municipal", error.statusText, 3);
+                        },
+                        complete: hideLoading
+                    });
+                    return false;
+                }
+            }
+
+            // Asigna la función generarInforme al evento click del botón
+            $("#btnGenerar").on('click', generarInforme);
+        });
+
+
+    </script>

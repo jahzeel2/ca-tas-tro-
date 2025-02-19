@@ -1,0 +1,48 @@
+﻿@using GeoSit.Data.BusinessEntities.DeclaracionesJuradas;
+
+@model DatosComputo
+
+<form class="form-horizontal">
+    <div class="form-group">
+        <label for="zona-ecologica">
+            Zona Ecol&oacute;gica
+        </label>
+        <input type="text" class="form-control" id="zona-ecologica" readonly="readonly" value="@Model.CodigoZonaEcologica">
+    </div>
+    <div class="form-group">
+        <label for="anio-base">
+            A&ntilde;o Base
+        </label>
+        <input type="text" class="form-control" id="anio-base" readonly="readonly" value="@Model.AnioBase">
+    </div>
+    <div class="form-group">
+        <label for="valor-aplicado">
+            Valor &Oacute;ptimo
+        </label>
+        <input type="text" class="form-control" id="valor-optimo" readonly="readonly" value="@Model.ValorOptimo">
+    </div>
+    <div class="form-group">
+        <label for="superficie-total-valuada">
+            Superficie
+        </label>
+        <input type="text" class="form-control" id="superficie-total-valuada" readonly="readonly" value="@Model.SuperficieValuadaHA">
+    </div>
+    <div class="form-group">
+        <label for="puntaje-total-valuado">
+            Puntaje
+        </label>
+        <input type="text" class="form-control" id="puntaje-total-valuado" readonly="readonly" value="@Model.PuntajeValuado">
+    </div>
+    <div class="form-group">
+        <label for="porcentaje-depreciacion">
+            Depreciaci&oacute;n
+        </label>
+        <input type="text" class="form-control" id="porcentaje-depreciacion" readonly="readonly" value="@Model.PorcentajeDepreciacion">
+    </div>
+    <div class="form-group">
+        <label for="valuacion-total">
+            Valuaci&oacute;n
+        </label>
+        <input type="text" class="form-control" id="valuacion-total" readonly="readonly" value="@Model.Valuacion">
+    </div>
+</form>

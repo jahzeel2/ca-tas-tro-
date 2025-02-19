@@ -1,0 +1,115 @@
+﻿@using GeoSit.Data.BusinessEntities.ModuloPloteo;
+@model Plantilla
+
+<div class="panel plantilla-detalle">
+    <div class='panel-heading bg-primary'>
+        <a href="javascript:void(0)">
+            <div class="panel-title">@Model.Nombre</div>
+        </a>
+    </div>
+    <div class="panel-body options-body">
+        @Html.HiddenFor(model => model.IdPlantilla)
+        @Html.Hidden("idComponentePrincipal", ViewData["idComponentePrincipal"])
+        <div class="grid-row">
+            @Html.Partial("Partial/_ResumenPlantilla", Model)
+        </div>
+        <div class="grid-row">
+            <div id="accordion-opciones-ploteo" class="section-position-ploteador">
+                <div class="panel remove-shadow">
+                    <div class="panel-heading bg-primary main-heading">
+                        <a data-toggle="collapse" data-parent="#accordion-opciones-ploteo" href="#collapse-opciones"
+                           aria-expanded="false" aria-controls="#collapse-opciones">
+                            <div class="panel-title">
+                                Opciones
+                                <i class="fa"></i>
+                            </div>
+                        </a>
+                    </div>
+                    <div id="collapse-opciones" class="panel-collapse collapse in" aria-expanded="true">
+                        <div class="col-xs-12">
+                            <div class="panel-body">
+                                <fieldset>
+                                    @Html.Partial("Partial/_Transparencia", Model)
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Objetos</legend>
+                                    <div class="form-group row">
+                                        <div class="col-xs-offset-2 col-xs-7">
+                                            <select id="cboComponentes" class="form-control select2">
+                                                <option value="0">Seleccione Componente Principal</option>
+                                                @foreach (var componente in ViewBag.ListComponente)
+                                                {
+                                                    <option data-doctype="@componente.DocType" value="@componente.ComponenteId">@componente.Nombre</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-xs-2">Filtrar</label>
+                                        <div class="col-xs-9">
+                                            <div class="input-group filtro-busqueda disabled">
+                                                <input type="text" id="filtro" class="form-control predefinidos-filter" placeholder="Filtro" readonly="readonly">
+                                                <div class="input-group-addon cursor-pointer" id="buscarComponente">
+                                                    <span style="pointer-events:none" aria-hidden="true" data-placement="bottom" title="Buscar" data-original-title="Buscar" class="fa-lg fa fa-search black cursor-pointer"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <fieldset class="inner">
+                                            <h5>Objetos a Seleccionar</h5>
+                                            <div class="col-xs-12" id="selectGralAregar" style="padding-left: 7px;">
+                                                <div class="row">
+                                                    <div class="col-xs-10">
+                                                        <label class="cursor-pointer">
+                                                            <input style=" margin-top: 2px" class="faChkSqr" id="checkGralAgregar" type="checkbox" />
+                                                            Seleccionar todos
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-1">
+                                                        <span id="btn_Agregar" class="fa fa-plus-circle fa-2x black cursor-pointer" style="margin-top:-7px;" aria-hidden="true" title="Agregar"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12">
+                                                <div id="listCheckAgregar" class="listCheck">
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="form-group row">
+                                        <fieldset class="inner">
+                                            <h5>Objetos Seleccionados</h5>
+                                            <div class="col-xs-12" id="selectGralEliminar" style="padding-left: 7px;">
+                                                <div class="row">
+                                                    <div class="col-xs-10">
+                                                        <label class="cursor-pointer">
+                                                            <input style=" margin-top: 2px" class="faChkSqr" id="checkGralEliminar" type="checkbox" />
+                                                            Seleccionar todos
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-1">
+                                                        <span id="btn_Eliminar" class="fa fa-minus-circle fa-2x black cursor-pointer" style="margin-top:-7px;" aria-hidden="true" title="Eliminar"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12">
+                                                <div id="agregados" class="listCheck">
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/Scripts/Ploteo/ploteoPredefinido.js"></script>
+<script>
+    $(document).trigger({ type: "plantilla-cargada", controller: PloteoPredefinidoController() });
+</script>

@@ -1,0 +1,104 @@
+﻿@model GeoSit.Data.BusinessEntities.MesaEntradas.DTO.Asignacion
+<style>
+    #modal-reasignar-tramite textarea{
+        height: auto;
+    }
+    #modal-reasignar-tramite [type=submit] {
+        padding:0;
+        background:none !important;
+        box-shadow:none !important;
+        outline: none !important;
+    }
+</style>
+
+<div class="modal fade theme_new" id="modal-reasignar-tramite" data-backdrop="false" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form-horizontal">
+                <div class="scroll-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Reasignar Tr&aacute;mites - Elija Usuario</h3>
+                        <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="body-content">
+                            <div class="panel remove-shadow remove-margin">
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        @foreach (var tr in Model.IdTramitesAsignados)
+                                        {
+                                            @Html.Hidden("IdTramitesAsignados[]", tr, new { id = "TramitesAsignados_" + tr })
+                                        }
+                                        <div class="col-xs-offset-1 col-xs-10">
+                                            <label class="control-label col-xs-3 text-right">
+                                                Usuario:
+                                            </label>
+                                            <div class="col-xs-9">
+                                                @Html.DropDownListFor(model => model.IdUsuarioAsignado, ViewData["Usuarios"] as IEnumerable<SelectListItem>, new { @class = "form-control text-primary" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-xs-offset-1 col-xs-10">
+                                            <label class="control-label col-xs-3 text-right">
+                                                Observaciones:
+                                            </label>
+                                            <div class="col-xs-9">
+                                                @Html.TextAreaFor(model => model.Observacion, new { @class = "form-control text-primary", rows="6" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-xs-4 pull-right">
+                            <button type="submit" data-placement="right" title="Aceptar" data-original-title="Aceptar" class="btn cursor-pointer">
+                                <span class="fa fa-check-circle light-blue fa-2x"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery.form.js"></script>
+<script>
+    function init() {
+        const container = "#modal-reasignar-tramite";
+        const ok = ({ error, mensajes }) => {
+            if (error) {
+                showError(mensajes);
+                return;
+            }
+            $(container).parent().trigger("formCerrado", null);
+            $(container).modal("hide");
+        }, showError = (messages, type) => {
+            const params = { messages, type: type || TIPO_MSG.ERROR };
+            $(container).parent().trigger("mostrarMensaje", params);
+        };
+        $(container)
+            .one("shown.bs.modal", hideLoading)
+            .modal("show");
+        const form = $("form", container);
+        form.ajaxForm({
+            beforeSubmit: () => {
+                if (Number($("#IdUsuarioAsignado", container).val()) === 0) {
+                    showError(["Debe seleccionar el <strong>Usuario</strong> al cual realizar la reasignación."], TIPO_MSG.WARNING);
+                    return false;
+                }
+                showLoading();
+            },
+            type: "POST",
+            url: "@Url.Action("Reasignar")",
+            success:  ok,
+            error: showError.bind(null, ["Ha ocurrido un error al realizar la reasignación."]),
+            complete: hideLoading
+        });
+        form.submit(() => false);
+    }
+    $(document).ready(init);
+</script>

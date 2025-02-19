@@ -1,0 +1,67 @@
+﻿#modal-parcela-grafico .administrador-content {
+    height: calc(100vh - 104px);
+    overflow: hidden;
+}
+
+    #modal-parcela-grafico .administrador-content > div.row,
+    #modal-parcela-grafico .administrador-content > div.row > div.col-xs-6,
+    #modal-parcela-grafico .panel-mapa > .panel-body {
+        height: 100%;
+    }
+
+#modal-parcela-grafico .info {
+    margin: 0;
+    box-shadow: none;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+}
+
+
+#modal-parcela-grafico #map-tag {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#modal-parcela-grafico .tabla-con-botones {
+    padding: 0;
+    padding-top: 5px;
+    padding-right: 10px;
+}
+
+    #modal-parcela-grafico .tabla-con-botones dl {
+        align-self: center;
+        position: relative;
+        margin: 0;
+        right: 0;
+        top: 0;
+        left: 5px;
+    }
+
+#modal-parcela-grafico form {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+    #modal-parcela-grafico form .nomenclatura {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        gap: 2px;
+    }
+
+        #modal-parcela-grafico form .nomenclatura .componente {
+            display: grid;
+            flex: 0;
+            flex-basis: 75px;
+        }
+
+            #modal-parcela-grafico form .nomenclatura .componente label {
+                font-size: 1rem;
+            }
+
+            #modal-parcela-grafico form .nomenclatura .componente input {
+                text-transform: uppercase;
+            }

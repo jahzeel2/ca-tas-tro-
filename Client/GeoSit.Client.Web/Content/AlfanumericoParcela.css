@@ -1,0 +1,90 @@
+﻿#modal-window-alfanumerico-parcelas .alfanumerico-content {
+    max-height: calc(100vh - 150px);
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
+#modal-window-alfanumerico-parcelas .datos-destino-comunes,
+#modal-window-alfanumerico-parcelas .datos-parcela-destino {
+    display: grid;
+    row-gap: 0.8rem;
+}
+
+#modal-window-alfanumerico-parcelas .datos-operacion,
+#modal-window-alfanumerico-parcelas .info-group {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+    margin: 5px;
+}
+
+    #modal-window-alfanumerico-parcelas .info-group:has(.data-item:only-child) {
+        justify-content: left;
+    }
+
+#modal-window-alfanumerico-parcelas .date > input {
+    background-color: inherit;
+}
+#modal-window-alfanumerico-parcelas .data-item {
+    flex: 1;
+    display: grid;
+}
+
+    #modal-window-alfanumerico-parcelas .data-item:only-child {
+        flex-grow: 0;
+        flex-basis: 150px;
+    }
+
+    #modal-window-alfanumerico-parcelas .data-item.submit {
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        height: 100%;
+        flex-grow: 0;
+        position: relative;
+        margin: 0;
+        padding-bottom: 2px;
+    }
+
+        #modal-window-alfanumerico-parcelas .data-item.submit > button {
+            border: 0;
+            outline: none;
+            background: none;
+            cursor: pointer;
+        }
+        #modal-window-alfanumerico-parcelas .data-item.submit > button.disabled {
+            opacity: .4;
+            cursor: default;
+            pointer-events: none;
+        }
+
+#modal-window-alfanumerico-parcelas .tabla-con-botones {
+    position: relative;
+    padding: 0;
+    padding-right: 10px;
+}
+
+    #modal-window-alfanumerico-parcelas .tabla-con-botones dl {
+        right: 5px;
+        margin: 0;
+    }
+
+    #modal-window-alfanumerico-parcelas .tabla-con-botones.disabled * {
+        pointer-events: none;
+    }
+
+#modal-window-alfanumerico-parcelas .resultados.tabla-con-botones {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 10px;
+}
+
+#modal-window-alfanumerico-parcelas .tab-content-data {
+    display: grid;
+    margin-inline: 5px;
+}
+
+    #modal-window-alfanumerico-parcelas .tab-content-data > form {
+        display: grid;
+        row-gap: .8rem;
+    }

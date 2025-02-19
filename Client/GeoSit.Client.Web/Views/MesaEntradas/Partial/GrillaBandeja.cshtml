@@ -1,0 +1,66 @@
+﻿@model GeoSit.Client.Web.ViewModels.BandejaMesaEntradasViewModel
+@{
+    string guid = Guid.NewGuid().ToString();
+}
+
+
+<div class="tabla-sin-botones">
+    <table id="@ViewData["name"]" class="table table-striped table-bordered table-responsive" data-role-grid="@(ViewData["role"]??"1")">
+        <thead>
+            <tr>
+                <th> Id DPCyC</th>
+                <th> Actuaci&oacute;n</th>
+                <th> Profesional</th>
+                <th> Asunto</th>
+                <th> Causa</th>
+                <th> Estado</th>
+                <th> Prioridad</th>
+                <th> Usuario Asignado</th>
+                <th> Sector</th>
+                <th> Fecha &Uacute;lt. Act.</th>
+            </tr>
+            <tr class="filtros">
+                <th><form><input autocomplete="off" type="number" class="form-control input-sm" placeholder="Buscar..." step="1" min="1"></form></th>
+                <th><form><input autocomplete="off" type="text" class="form-control input-sm" placeholder="Buscar..."></form></th>
+                <th><form><input autocomplete="off" type="text" class="form-control input-sm" placeholder="Buscar..."></form></th>
+                <th>
+                    <form>
+                        @Html.DropDownList("filtroAsunto", Model.Asuntos, new { @class = "form-control input-sm", @id = "fat-" + guid })
+                    </form>
+                </th>
+                <th>
+                    <form>
+                        @Html.DropDownList("filtroCausa", Model.Causas, new { @class = "form-control input-sm", @id = "fct-" + guid })
+                    </form>
+                </th>
+                <th>
+                    <form>
+                        @Html.DropDownList("filtroEstado", Model.Estados, new { @class = "form-control input-sm", @id = "fet-" + guid })
+                    </form>
+                </th>
+                <th>
+                    <form>
+                        @Html.DropDownList("filtroPrioridad", Model.Prioridades, new { @class = "form-control input-sm", @id = "fpt-" + guid })
+                    </form>
+                </th>
+                <th><form><input autocomplete="off" type="text" class="form-control input-sm" placeholder="Buscar..."></form></th>
+                <th>
+                    <form>
+                        @Html.DropDownList("filtroSector", Model.Sectores, new { @class = "form-control input-sm", @id = "fst-" + guid })
+                    </form>
+                </th>
+                <th>
+                    <form>
+                        <div class="input-group date input-group-sm">
+                            <input type="text" class="date form-control" autocomplete="off" placeholder="Buscar..." />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </form>
+                </th>
+            </tr>
+        </thead>
+        <tbody />
+    </table>
+</div>

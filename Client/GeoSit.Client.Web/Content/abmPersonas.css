@@ -1,0 +1,69 @@
+﻿#modal-window-personas {
+    --footer-height: 48px;
+}
+
+    #modal-window-personas:has(.modal-footer.hidden) {
+        --footer-height: 0px;
+    }
+
+
+#modal-window-personas .administrador-content {
+    max-height: calc(100vh - (112px + var(--footer-height)));
+    overflow: hidden;
+}
+
+
+#modal-window-personas form.buscador {
+    margin: 5px;
+    margin-bottom: 0;
+}
+
+#modal-window-personas .listado {
+    pointer-events: none !important;
+}
+
+#modal-window-personas .tabla-con-botones {
+    position: relative;
+    padding: 0;
+    padding-right: 10px;
+}
+
+    #modal-window-personas .tabla-con-botones dl {
+        right: 5px;
+        margin: 0;
+    }
+
+    #modal-window-personas .tabla-con-botones.disabled * {
+        pointer-events: none;
+    }
+
+#modal-window-personas .resultados.tabla-con-botones {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 10px;
+}
+
+#modal-window-personas [role="tablist"], #modal-window-personas .tab-content {
+    margin: 5px;
+}
+
+#modal-window-personas .tab-content-data {
+    display: grid;
+    margin-inline: 5px;
+}
+
+#modal-window-personas .tab-content-data > form {
+    display:grid; 
+    row-gap:.8rem;
+}
+
+#modal-window-personas .info-group {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+}
+
+#modal-window-personas .data-item {
+    flex: 1;
+    display: grid;
+}

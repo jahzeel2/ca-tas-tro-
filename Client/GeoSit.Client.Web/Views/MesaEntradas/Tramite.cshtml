@@ -1,0 +1,387 @@
+﻿@using GeoSit.Data.BusinessEntities.MesaEntradas
+@model METramite
+
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/tramiteMesaEntradas.css" rel="stylesheet" />
+<link href="~/Content/valuaciones.css" rel="stylesheet" />
+
+<div class="modal fade theme_new" id="modal-window-tramite" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-fullwidth">
+        <div class="modal-content">
+            <div class="scroll-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">@string.Format("{0} Trámite", ViewData["Accion"], (string.IsNullOrEmpty(Model.Numero) ? "" : string.Format(" - {0}", Model.Numero)))</h3>
+                    <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="body-content">
+                        <div class="panel remove-shadow">
+                            <div class="panel-title tabs-title hidden">
+                                <ul class="nav nav-tabs">
+                                    <li role="presentation" class="nav-item active"><a class="nav-link" data-toggle="tab" href="#tab-caratula">Car&aacute;tula</a></li>
+                                    <li role="presentation" class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-objetos-mensura">Objetos de Mensura</a></li>
+                                    <li role="presentation" class="nav-item estado-visados">
+                                        @Html.Partial("Partial/EstadoVisados", ViewData["ResumenVisados"])
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="panel-body">
+                                <div class="tab-content">
+                                    <div id="tab-caratula" role="tabpanel" class="tab-pane datos active">
+                                        <div class="grid-row solicitante">
+                                            <div class="columna">
+                                                <label for="Numero" class="control-label">SGT #:</label>
+                                                @Html.TextBoxFor(model => model.Numero, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                            <div class="columna">
+                                                <label for="IdTramiteVisual" class="control-label">DPCyC #:</label>
+                                                @Html.HiddenFor(model => model.IdTramite)
+                                                @Html.TextBox("IdTramiteVisual", Model.IdTramite <= 0 ? "" : Model.IdTramite.ToString(), new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                            <div class="columna">
+                                                <label for="IdTipoTramite" class="control-label">Asunto:</label>
+                                                @if ((bool)ViewData["Readonly"] || !(bool)ViewData["EsProfesional"] || (bool)ViewData["Ingresado"])
+                                                {
+                                                    @Html.DropDownListFor(model => model.IdTipoTramite, ViewData["Asuntos"] as IEnumerable<SelectListItem>, new { @class = "form-control", @disabled = "disabled" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(model => model.IdTipoTramite, ViewData["Asuntos"] as IEnumerable<SelectListItem>, new { @class = "form-control" })
+                                                }
+                                            </div>
+                                            <div class="columna">
+                                                <label for="IdObjetoTramite" class="control-label">Causa:</label>
+                                                @if ((bool)ViewData["Readonly"] || !(bool)ViewData["EsProfesional"] || (bool)ViewData["Ingresado"])
+                                                {
+                                                    @Html.DropDownListFor(model => model.IdObjetoTramite, ViewData["Causas"] as IEnumerable<SelectListItem>, new { @class = "form-control", @disabled = "disabled" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(model => model.IdObjetoTramite, ViewData["Causas"] as IEnumerable<SelectListItem>, new { @class = "form-control" })
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="grid-row cabecera">
+                                            <div class="columna">
+                                                <label for="txtProfesional" class="control-label">Profesional:</label>
+                                                <input type="text" id="txtProfesional" value="@ViewData["nombreProfesional"]" class="form-control" readonly="readonly" />
+                                            </div>
+                                            <div class="columna">
+                                                <label for="txtSector" class="control-label">Rol:</label>
+                                                <input type="text" id="txtSector" value="@ViewData["sectorProfesional"]" class="form-control" readonly="readonly" />
+                                            </div>
+                                            <div class="columna">
+                                                <label for="Estado_Descripcion" class="control-label">Estado:</label>
+                                                @Html.HiddenFor(model => model.IdEstado)
+                                                @Html.TextBoxFor(model => model.Estado.Descripcion, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                            <div class="columna">
+                                                <label for="FechaIngreso" class="control-label">Ingres&oacute;:</label>
+                                                @Html.TextBoxFor(model => model.FechaIngreso, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="grid-row tramite">
+                                            <div class="columna">
+                                                <label for="IdPrioridad" class="control-label">Prioridad:</label>
+                                                @if ((bool)ViewData["Readonly"] || !(bool)ViewData["EsProfesional"] || (bool)ViewData["Ingresado"])
+                                                {
+                                                    @Html.DropDownListFor(model => model.IdPrioridad, ViewData["Prioridades"] as IEnumerable<SelectListItem>, new { @class = "form-control text-primary", @disabled = "disabled" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(model => model.IdPrioridad, ViewData["Prioridades"] as IEnumerable<SelectListItem>, new { @class = "form-control text-primary" })
+                                                }
+                                            </div>
+                                            <div class="columna">
+                                                <label for="Iniciador" class="control-label">Iniciador:</label>
+                                                <div class="input-group">
+                                                    @{ 
+                                                        bool inmutable = (bool)ViewData["Readonly"] || !(bool)ViewData["EsProfesional"] || (bool)ViewData["Ingresado"];
+                                                    }
+                                                    @if (inmutable)
+                                                    {
+                                                        @Html.TextBox("txtIniciador", ViewData["Iniciador"], new { @class = "form-control", @readonly = "readonly" })
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.TextBox("txtIniciador", ViewData["Iniciador"], new { @class = "form-control active-look", @readonly = "readonly" })
+                                                    }
+                                                    @Html.HiddenFor(model => model.IdIniciador)
+                                                    <div class="input-group-addon cursor-pointer @(inmutable ? "boton-deshabilitado" : "")" id="btnBuscarPersona">
+                                                        <span data-placement="bottom" title="Buscar Persona" class="fa-lg fa fa-search black cursor-pointer" aria-hidden="true"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="columna">
+                                                <label for="Comprobante" class="control-label">Comprobante:</label>
+                                                @if ((bool)ViewData["Readonly"] || !(bool)ViewData["EsProfesional"])
+                                                {
+                                                    @Html.TextBoxFor(model => model.Comprobante, new { @class = "form-control", @readonly = "readonly" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(model => model.Comprobante, new { @class = "form-control" })
+                                                }
+                                            </div>
+                                            <div class="columna">
+                                                <label for="Monto" class="control-label">Monto:</label>
+                                                @if ((bool)ViewData["Readonly"] || !(bool)ViewData["EsProfesional"])
+                                                {
+                                                    @Html.TextBoxFor(model => model.Monto, new { @class = "form-control", @min = "0", @step = "0.01", @type = "number", @readonly = "readonly" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(model => model.Monto, new { @class = "form-control", @min = "0", @step = "0.01", @type = "number" })
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="grid-row origenes">
+                                            <div class="columna empty"></div>
+                                            <div class="columna grilla hidden">
+                                                <div class="tabla-con-botones">
+                                                    <table id="grilla-origenes" class="table table-striped table-condensed table-bordered table-responsive">
+                                                        <caption>Inmueble Involucrado</caption>
+                                                    </table>
+                                                    @if (!(bool)ViewData["Readonly"] && (bool)ViewData["EsProfesional"])
+                                                    {
+                                                        <dl>
+                                                            <dt><span id="btnAgregarOrigen" class="fa fa-plus-circle fa-2x black cursor-pointer" aria-hidden="true" title="Agregar Origen"></span></dt>
+                                                            <dt><span id="btnEliminarOrigen" class="fa fa-2x fa-minus-circle cursor-pointer black boton-deshabilitado" aria-hidden="true" title="Quitar Origen"></span></dt>
+                                                        </dl>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="grid-row grillas">
+                                            <div class="columna grilla">
+                                                <div class="tabla-sin-botones">
+                                                    <table id="grilla-movimientos" class="table table-striped table-condensed table-bordered table-responsive">
+                                                        <caption>Movimientos</caption>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="columna grilla">
+                                                <div class="tabla-con-botones">
+                                                    <table id="grilla-notas" class="table table-striped table-condensed table-bordered table-responsive">
+                                                        <caption>Notas y Adjuntos</caption>
+                                                    </table>
+                                                    @if (!(bool)ViewData["Readonly"])
+                                                    {
+                                                        <dl>
+                                                            <dt><span id="btnAgregarNota" class="fa fa-plus-circle fa-2x black cursor-pointer" aria-hidden="true" title="Agregar Nota"></span></dt>
+                                                            <dt><span id="btnEditarNota" class="fa fa-2x fa-pencil cursor-pointer black boton-deshabilitado" aria-hidden="true" title="Quitar Nota"></span></dt>
+                                                            <dt><span id="btnEliminarNota" class="fa fa-2x fa-minus-circle cursor-pointer black boton-deshabilitado" aria-hidden="true" title="Quitar Nota"></span></dt>
+                                                        </dl>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-objetos-mensura" role="tabpanel" class="tab-pane mensura">
+                                        <div class="grid-row">
+                                            <div class="columna plano">
+                                                <label for="Plano" class="control-label">Plano:</label>
+                                                @if (!(bool)ViewData["PuedeAsignarReservaNumeroPlano"])
+                                                {
+                                                    @Html.TextBoxFor(model => model.Plano, new { @class = "form-control", @readonly = "readonly" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(model => model.Plano, new { @class = "form-control" })
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="grid-row grillas">
+                                            <div class="columna grilla">
+                                                <div class="tabla-con-botones">
+                                                    <table id="grilla-origenes-mensura" class="table table-striped table-condensed table-bordered table-responsive">
+                                                        <caption>Inmuebles de Origen</caption>
+                                                    </table>
+                                                    @if (!(bool)ViewData["Readonly"] && !(bool)ViewData["AntecedentesGenerados"] && (bool)ViewData["EsProfesional"])
+                                                    {
+                                                        <dl>
+                                                            <dt><span id="btnAgregarOrigenMensura" class="fa fa-plus-circle fa-2x black cursor-pointer" aria-hidden="true" title="Agregar Origen"></span></dt>
+                                                            <dt><span id="btnEliminarOrigenMensura" class="fa fa-2x fa-minus-circle cursor-pointer black boton-deshabilitado" aria-hidden="true" title="Quitar Origen"></span></dt>
+                                                            <dt><span id="btnDescargarAntecedentes" class="fa fa-2x fa-object-group cursor-pointer black boton-deshabilitado" aria-hidden="true" title="Descargar Antecedentes"></span></dt>
+                                                        </dl>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="columna grilla">
+                                                <div class="tabla-con-botones">
+                                                    <table id="grilla-destino-mensura" class="table table-striped table-condensed table-bordered table-responsive">
+                                                        <caption>Inmuebles de Destino</caption>
+                                                    </table>
+                                                    @if (!(bool)ViewData["Readonly"])
+                                                    {
+                                                        <dl>
+                                                            @if ((bool)ViewData["EsProfesional"] && !(bool)ViewData["ReservasGeneradas"])
+                                                            {
+                                                                <dt><span id="btnAgregarDestinoMensura" class="fa fa-plus-circle fa-2x black cursor-pointer" aria-hidden="true" title="Agregar Destino"></span></dt>
+                                                                <dt><span id="btnEliminarDestinoMensura" class="fa fa-2x fa-minus-circle cursor-pointer black boton-deshabilitado" aria-hidden="true" title="Quitar Destino"></span></dt>
+                                                            }
+
+                                                            @if ((bool)ViewData["PuedeValuar"])
+                                                            {
+                                                                <dt><span id="btnAgregarValuacion" class="fa fa-money fa-2x black cursor-pointer boton-deshabilitado" aria-hidden="true" title="Agregar Valuación"></span></dt>
+                                                            }
+                                                        </dl>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="buttons">
+                            <div class="btn-group dropup btn-acciones">
+                                <button type="button" class="btn btn-accion dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Acciones <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @Html.Partial("Partial/AccionesTramite", ViewData["Acciones"])
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade theme_new mensaje" id="modalObservaciones" tabindex="-2" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Observaciones</h3>
+                <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cancelar" title="Cancelar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-dismissible" role="alert">
+                    <p />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade theme_new mensaje" id="mensajeModalTramites" tabindex="-2" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Titulo</h3>
+                <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cancelar" title="Cancelar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <p></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-4 pull-right">
+                    <span role="button" aria-hidden="true" data-dismiss="modal" title="Aceptar" data-original-title="Aceptar" class="fa fa-check-circle light-blue fa-3x cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade theme_new" id="modalNotas" tabindex="-3" role="dialog" aria-hidden="true" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"></h3>
+                <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="body-content">
+                    <div class="form-horizontal">
+                        @Html.Hidden("hdnIdNota")
+                        @Html.Hidden("hdnUsuarioNombre", (string)ViewBag.usuarioNombre)
+                        @Html.Hidden("hdnUsuarioLogin", (string)ViewBag.usuarioLogin)
+                        <div class="form-group hide-when-fileonly">
+                            <label class="col-xs-4 control-label text-muted text-right">
+                                Tipo Nota:
+                            </label>
+                            <div class="col-xs-8">
+                                @Html.DropDownList("cboTiposNota", (IEnumerable<SelectListItem>)ViewData["tiposDocumentos"], new { @class = "form-control input-sm" })
+                            </div>
+                        </div>
+                        <div class="form-group hide-when-fileonly">
+                            <label class="col-xs-4 control-label text-muted text-right">
+                                Descripci&oacute;n:
+                            </label>
+                            <div class="col-xs-8">
+                                @Html.TextArea("txtNotaDescripcion", null, new { @style = "margin-left: 0px; margin-top: 5px; height: 80px;", @maxlength = "100", @class = "form-control", @placeholder = "Ingrese una descripción" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-4 control-label text-muted text-right">
+                                Archivo:
+                            </label>
+                            <div class="col-xs-8">
+                                <div class="input-group">
+                                    @Html.TextBox("txtNotaArchivo", null, new { @class = "form-control", @readonly = "readonly", @placeholder = "Ingrese el nombre del archivo" })
+                                    <span class="input-group-addon cursor-pointer">
+                                        <span id="btnNotaExplorar" class="fa fa-file black" aria-hidden="true" title="Explorar"></span>
+                                    </span>
+                                </div>
+                                @Html.Hidden("hdnExtensionArchivo", "")
+                                @Html.TextBox("txtNotaArchivoFile", null, new { type = "file", @class = "hidden" })
+                            </div>
+                        </div>
+                        <div class="form-group hidden">
+                            <label class="col-xs-4 control-label text-muted text-right">
+                                Fecha de Aprobación:
+                            </label>
+                            <div class="col-xs-8">
+                                @Html.HiddenFor(model => model.FechaAlta)
+                                @Html.TextBox("fecha-Aprobacion", "dd/mm/yyyy", new { @class = "form-control", @id = "fecha-aprobacion", @placeholder = "XX/XX/XXXX" })
+                            </div>
+                        </div>
+                        <div class="form-group hide-when-fileonly">
+                            <label class="col-xs-4 control-label text-muted text-right">
+                                Observaci&oacute;n:
+                            </label>
+                            <div class="col-xs-8">
+                                @Html.TextArea("txtNotaObservacion", null, new { @style = "margin-left: 0px; margin-top: 5px; height: 80px;", @maxlength = "4000", @class = "form-control", @placeholder = "Ingrese una observación" })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-4 pull-right">
+                    <span id="btnAceptarInfoNota" aria-hidden="true" data-placement="right" title="Aceptar" data-original-title="Aceptar" class="fa fa-check-circle light-blue fa-2x cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="formulario-externo"></div>
+
+<script src="~/Scripts/formValidation.min.js"></script>
+<script src="~/Scripts/bootstrapValidation.min.js"></script>
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/dataTables.bootstrap.js"></script>
+<script src="~/Scripts/MesaEntradas/serviceTramite.js"></script>
+<script src="~/Scripts/MesaEntradas/storeTramite.js"></script>
+<script src="~/Scripts/MesaEntradas/tramite.js"></script>
+
+<script>
+    const opts = {
+        userFullName:"@ViewData["UsuarioNombre"]",
+        userId:@ViewData["IdUsuario"].ToString(),
+        readonly:@ViewData["Readonly"].ToString().ToLower(),
+        profesional:@ViewData["EsProfesional"].ToString().ToLower(),
+        assignNomenclaturas:@ViewData["PuedeAsignarReservasNomenclaturas"].ToString().ToLower(),
+        assignNumeroPlano:@ViewData["PuedeAsignarReservaNumeroPlano"].ToString().ToLower()
+    };
+    TramiteController("#modal-window-tramite", createStoreTramite(createServiceTramite()), opts);
+</script>

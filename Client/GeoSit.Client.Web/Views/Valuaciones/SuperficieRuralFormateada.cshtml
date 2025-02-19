@@ -1,0 +1,30 @@
+﻿@using GeoSit.Client.Web.Models.FormularioValuacion;
+@model SuperficieRuralModel
+
+<div class="superficie-formateada">
+    <input type="hidden" value="@Model.SuperficieTotalM2" />
+    <div class="componente">
+        <label>Ha</label>
+        <input readonly="readonly" type="number" value="@Model.Hectarea" />
+    </div>
+
+    <div class="componente">
+        <label>&Aacute;rea</label>
+        <input readonly="readonly" type="number" value="@Model.Area" />
+    </div>
+
+    <div class="componente">
+        <label>M<sup>2</sup></label>
+        <input readonly="readonly" type="number" value="@Model.M2" />
+    </div>
+
+    <div class="componente">
+        <label>Dm<sup>2</sup></label>
+        <input readonly="readonly" type="number" value="@Model.Dm2" />
+    </div>
+
+    <div class="componente">
+        <label>Cm<sup>2</sup></label>
+        <input readonly="readonly" type="number" value="@Model.Cm2" />
+    </div>
+</div>

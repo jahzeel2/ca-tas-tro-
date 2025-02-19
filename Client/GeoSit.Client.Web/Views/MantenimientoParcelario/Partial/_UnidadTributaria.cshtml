@@ -1,0 +1,824 @@
+﻿@using GeoSit.Data.BusinessEntities.Inmuebles;
+@using GeoSit.Client.Web.Models.DominioTitular;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
+@using System.Collections.Generic;
+@using GeoSit.Data.BusinessEntities.DeclaracionesJuradas;
+@using GeoSit.Client.Web.Models.Dominio;
+@using GeoSit.Client.Web.Controllers;
+@model GeoSit.Data.BusinessEntities.Inmuebles.UnidadTributaria
+
+@{
+    long? primerDominioId = null;
+    var jsonTitulares = ViewData["UTtitulares"] as string;
+    List<TitularViewModel> listaTitulares = new List<TitularViewModel>();
+    if (!string.IsNullOrEmpty(jsonTitulares))
+    {
+        var jsonObject = JObject.Parse(jsonTitulares);
+        var jsonData = jsonObject["data"].ToString();
+        listaTitulares = JsonConvert.DeserializeObject<List<TitularViewModel>>(jsonData);
+    }
+    var listaTitularesJson = JsonConvert.SerializeObject(listaTitulares);
+    var json = ViewData["UTvaluaciones"] as string;
+    dynamic valuacion = string.IsNullOrEmpty(json) ? null : JsonConvert.DeserializeObject<dynamic>(json);
+    var valSuperficies = ViewData["UTsuperficies"] as List<VALSuperficie>;
+
+}
+
+<!--<style>#contenedor-arbol { height: 660px; }</style>-->
+
+<div class="row" style="text-align: center; margin-bottom: 20px;">
+    <input type="hidden" id="tipoUTid" value="@Model.TipoUnidadTributariaID" />
+    <input type="hidden" id="unidadTributariaId" value="@Model.UnidadTributariaId" />
+    <div class="col-xs-3"></div>
+    <div class="col-xs-3">
+        <div class="row">
+            <label class="col-xs-12 col-form-label" style="font-size: 16px;">Partida</label>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                @{
+                    if (Model.Parcela.TipoParcelaID == 3)
+                    {
+                        @Html.TextBox("CodigoProvincial", "", new { @class = "form-control uppercase", @readonly = "readonly", @data_editable = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(model => model.CodigoProvincial, new { @class = "form-control uppercase", @readonly = "readonly", style = "text-align: center; font-size: 17px; font-weight: bold; color: #0085fd;", inputmode = "numeric", maxlength = "8", oninput = "this.value = this.value.replace(/[^0-9]/g, '')" })
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-3">
+        <div class="row">
+            <label class="col-xs-12 col-form-label" style="font-size: 16px;">@(Model.TipoUnidadTributariaID != 1 ? Model.TipoUnidadTributaria.Abreviacion : "UF")</label>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                @{
+                    @*
+                        if (Model.Parcela.ClaseParcelaID == 3 || Model.Parcela.ClaseParcelaID == 4)
+                        {
+                            @Html.TextBoxFor(model => model.UnidadFuncional, new { @class = "form-control", @readonly = "readonly", style = "text-align: center; font-size: 17px; font-weight: bold; color: #0085fd;", maxlength = "5" })
+                        }
+                        else
+                        {
+                            @Html.TextBox("UnidadFuncional", "", new { @class = "form-control", @readonly = "readonly", @data_editable = "disabled", style = "text-align: center; font-size: 17px; font-weight: bold; color: #0085fd;", maxlength = "5" })
+                        }
+                    *@
+                    if (Model.TipoUnidadTributariaID != 1)
+                    {
+                        @Html.TextBoxFor(model => model.UnidadFuncional, new { @class = "form-control", @readonly = "readonly", style = "text-align: center; font-size: 17px; font-weight: bold; color: #0085fd;", maxlength = "5" })
+                    }
+                    else
+                    {
+                        @Html.TextBox("UnidadFuncional", "0", new { @class = "form-control", @readonly = "readonly", @data_editable = "disabled", style = "text-align: center; font-size: 17px; font-weight: bold; color: #0085fd;", maxlength = "5" })
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-3"></div>
+</div>
+
+<div class="row" style="border-top: 1px solid #5f6266; padding-top: 20px;">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label">Tipo:</label>
+            <div class="col-xs-7">
+                @Html.DropDownListFor(model => model.TipoUnidadTributariaID, (List<SelectListItem>)ViewData["TiposUnidadTributaria"], new { @class = "form-control", @disabled = "disabled", id = "cboTipoUT" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label">Piso-Dept:</label>
+            <div class="col-xs-7">
+                @Html.TextBoxFor(model => model.Piso, new { @class = "form-control", @readonly = "readonly", inputmode = "numeric", maxlength = "5", oninput = "this.value = this.value.replace(/[^0-9]/g, '')" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label" style="margin-top: -3px;">Fecha de Baja</label>
+            <div class="col-xs-7">
+                @if (Model.FechaBaja.HasValue)
+                {
+                    @Html.TextBoxFor(model => model.FechaBaja, new { @id = "FechaBaja", @type = "date", @class = "form-control parcela-fecha", @readonly = "readonly", @Value = Model.FechaBaja.HasValue ? Model.FechaBaja.Value.ToString("yyyy-MM-dd") : string.Empty })
+                }
+                else
+                {
+                    @Html.TextBoxFor(m => m.FechaBaja, new { @id = "FechaBaja", @type = "text", @class = "form-control parcela-fecha", @Value = string.Empty, @readonly = "readonly" })
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label">%Coprop:</label>
+            <div class="col-xs-7">
+                @{
+                    if (Model.Parcela.ClaseParcelaID == 1 || Model.Parcela.ClaseParcelaID == 2 || Model.Parcela.ClaseParcelaID == 6)
+                    {
+                        @Html.TextBox("PorcentajeCopropiedad", "100.00", new { @class = "form-control", @readonly = "readonly", @data_editable = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(model => model.PorcentajeCopropiedad, new { @class = "form-control", @readonly = "readonly" })
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row grillas">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-12 col-form-label" style="margin-left: 1px">Dominio:</label>
+            <div class="col-xs-11">
+                <div style="max-height: 125px; overflow-y: auto;">
+                    <table class="table table-striped table-bordered table-responsive dataTable no-footer" id="tablaDominios">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Inscripcion</th>
+                                <th>Año</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ var listaDominioss = ViewData["ListaDominios"] as List<DominioViewModel>;
+
+                                if (listaDominioss != null && listaDominioss.Any())
+                                {
+                                    primerDominioId = listaDominioss.FirstOrDefault().DominioID;
+                                    foreach (var dominio in listaDominioss.OrderByDescending(d => d.Fecha))
+                                    {
+                                        <tr data-tipo="@dominio.TipoInscripcionDescripcion"
+                                            data-inscripcion="@dominio.Inscripcion"
+                                            data-fecha="@dominio.Fecha.ToString("yyyy-MM-dd")"
+                                            data-id-ut="@dominio.UnidadTributariaID"
+                                            data-id-dominio="@dominio.DominioID"
+                                            data-tipo-insc-id="@dominio.TipoInscripcionID">
+                                            <td>@dominio.TipoInscripcionDescripcion</td>
+                                            <td>@dominio.Inscripcion</td>
+                                            <td>@(dominio.Fecha.Year == 1 ? "" : dominio.Fecha.ToString("yyyy"))</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No se encontraron dominios.</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-xs-1" style="margin-top: 10px;">
+                <dl class="editing" style="margin-left: -20px;">
+                    @if (SeguridadController.ExisteFuncion(@Resources.Seguridad.AltaDominio) ||
+                         SeguridadController.ExisteFuncion(@Resources.Seguridad.BajaDominio) ||
+                         SeguridadController.ExisteFuncion(@Resources.Seguridad.ModificarDominio))
+                    {
+                        if (SeguridadController.ExisteFuncion(@Resources.Seguridad.AltaDominio))
+                        {
+                            <dt><span id="dominio-insert" class="fa fa-plus-circle fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                        }
+                        if (SeguridadController.ExisteFuncion(@Resources.Seguridad.BajaDominio))
+                        {
+                            <dt><span id="dominio-delete" class="fa fa-minus-circle fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                        }
+                        if (SeguridadController.ExisteFuncion(@Resources.Seguridad.ModificarDominio))
+                        {
+                            <dt><span id="dominio-edit" class="fa fa-pencil fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                        }
+                    } 
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label for="planos" class="col-xs-12 col-form-label" style="margin-left: 1px">Valuación Vigente:</label>
+            <div class="col-xs-11">
+                <table class="table table-striped table-bordered table-responsive dataTable no-footer" id="tablaValuaciones">
+                    <thead>
+                        <tr>
+                            <th>Tierra</th>
+                            <th>Zona</th>
+                            <th>Deprec</th>
+                            <th>Vig.Desde</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (valuacion != null)
+                        {
+                            <tr>
+                                <td class="valor-tierra">@valuacion.ValorTierra</td>
+                                <td>@ViewData["ZonaEcologica"]</td>
+                                <td>-</td>
+                                <td>@valuacion.VigenciaDesde.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4">No se encontraron valuaciones.</td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-1" style="margin-top: 10px;">
+                <dl class="editing" style="margin-left: -20px;">
+                    @if (SeguridadController.ExisteFuncion(@Resources.Seguridad.EditarValuacion))
+                    {
+                        <dt><span id="valuacion-insert" class="fa fa-plus-circle fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                    }  
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row grillas">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label class="col-xs-12 col-form-label" style="margin-left: 1px">Titulares:</label>
+            <div class="col-xs-11">
+                <div style="max-height: 200px; overflow-y: auto;">
+                    <table class="table table-striped table-bordered table-responsive dataTable no-footer" id="tablaTitulares">
+                        <thead>
+                            <tr>
+                                <th>Titular</th>
+                                <th>Tipo</th>
+                                <th>Documento</th>
+                                <th>%.</th>
+                                <th>Fecha Escritura</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (listaTitulares != null && listaTitulares.Any())
+                            {
+                                foreach (var titular in listaTitulares)
+                                {
+                                    <tr data-dom-pers="@titular.DominioPersonaId"
+                                        data-dominio-id="@titular.DominioId"
+                                        data-tipo-tit-id="@titular.TipoTitularidadId"
+                                        data-persona-id="@titular.PersonaId"
+                                        data-nombre="@titular.NombreCompleto"
+                                        data-tipo-no-doc="@titular.TipoNoDocumento"
+                                        data-porciento-cop="@titular.PorcientoCopropiedad"
+                                        data-dom-fisico="@titular.DomicilioFisico"
+                                        data-porciento-cop-total="@titular.PorcientoCopropiedadTotal"
+                                        data-fecha-escritura="@titular.FechaEscritura">
+                                        <td>@titular.NombreCompleto</td>
+                                        <td>@titular.TipoTitularidad</td>
+                                        <td>@titular.TipoNoDocumento</td>
+                                        <td>@titular.PorcientoCopropiedad.ToString("F2")</td>
+                                        <td>@titular.FechaEscritura.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">No se encontraron titulares.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-xs-1" style="margin-top: 10px;">
+                <dl class="editing" style="margin-left: -20px;">
+                    @if (SeguridadController.ExisteFuncion(@Resources.Seguridad.AltaTitular) ||
+                         SeguridadController.ExisteFuncion(@Resources.Seguridad.BajaTitular) ||
+                         SeguridadController.ExisteFuncion(@Resources.Seguridad.ModificarTitular))
+                    {
+                        if (SeguridadController.ExisteFuncion(@Resources.Seguridad.AltaTitular))
+                        {
+                            <dt><span id="titular-insert" class="fa fa-plus-circle fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                        }
+                        if (SeguridadController.ExisteFuncion(@Resources.Seguridad.BajaTitular))
+                        {
+                            <dt><span id="titular-delete" class="fa fa-minus-circle fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                        }
+                        if (SeguridadController.ExisteFuncion(@Resources.Seguridad.ModificarTitular))
+                        {
+                            <dt><span id="titular-edit" class="fa fa-pencil fa-lg black cursor-pointer boton-deshabilitado" data-editable="" aria-hidden="true" style="display: inline;"></span></dt>
+                        }
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label for="planos" class="col-xs-12 col-form-label" style="margin-left: 1px">Componentes:</label>
+            <div class="col-xs-12">
+                <div style="max-height: 200px; overflow-y: auto; overflow-x: hidden;">
+                    <table class="table table-striped table-bordered dataTable no-footer" id="tablaComponentes">
+                        <thead>
+                            <tr>
+                                <th>Superficie</th>
+                                <th>Cod Terreno</th>
+                                <th>Ele/Gas</th>
+                                <th>Puntaje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (valSuperficies != null && valSuperficies.Any())
+                            {
+                                foreach (var item in valSuperficies)
+                                {
+                                    <tr>
+                                        <td>@(((decimal)(item.Superficie / 10000)).ToString("F4"))</td>
+                                        <td>@item.Aptitud.Descripcion</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4">No se encontraron componentes.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label for="observaciones" class="col-xs-12 col-form-label" style="margin-left: 1px">Designaci&oacute;n:</label>
+            <div class="col-xs-12">
+                @Html.TextAreaFor(model => model.Designaciones, new { @class = "form-control", @readonly = "readonly", rows = "6", style = "height: 50px;" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="form-group row">
+            <label for="observaciones" class="col-xs-12 col-form-label" style="margin-left: 1px">Observaciones:</label>
+            <div class="col-xs-12">
+                @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control", @readonly = "readonly", rows = "6", style = "height: 50px;" })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        var listaUTT = @Html.Raw(JsonConvert.SerializeObject(
+            Model.Parcela.UnidadesTributarias
+                .OrderBy(ut => ut.FechaAlta)
+                .Select(ut => new {
+                    ut.UnidadTributariaId,
+                    ut.FechaAlta,
+                })
+        ));
+
+        if (listaUTT.length > 1) {
+            var primeraUnidadTributaria = listaUTT[0];
+            if (primeraUnidadTributaria && primeraUnidadTributaria.UnidadTributariaId === @Model.UnidadTributariaId) {
+                $('.row.grillas').css('display', 'none');
+            }
+        }
+
+        var dominioSeleccionado = null;
+        var titularSeleccionado = null;
+
+        formatearMoneda();
+
+        $('#valuacion-insert').on('click', function () {
+            loadAdministradorForm(
+                BASE_URL + "Valuaciones/Administrador",
+                'GET',
+                { id: @Model.UnidadTributariaId, editable: true },
+                function() { cargarVista("MantenimientoParcelario/GetUnidadTributariaView", "Unidad Tributaria", { UnidadTributariaId: @Model.UnidadTributariaId }); }
+            );
+        });
+
+        // ------------------ DOMINIOS ------------------------
+        inicializarTabla('#tablaDominios', '#dominio-edit', '#dominio-delete');
+        seleccionarPrimerDominio();
+
+        $('#dominio-edit').on('click', function () {
+            dominioSeleccionado = GetDominioSeleccionado(GetFilaSeleccionada('#tablaDominios'));
+            if (dominioSeleccionado) {
+                loadObjetoGrilla(
+                    BASE_URL + "Dominio/FormContent",
+                    { dominio: dominioSeleccionado, idClaseParcela: '@Model.Parcela.ClaseParcelaID', key: 'dominio' },
+                    'dominioGuardado'
+                )
+                .then(function (dominioActualizado) {
+                    actualizarFilaTabla(dominioSeleccionado.DominioID, dominioActualizado);
+                })
+                .catch(function (error) {
+                    console.error("Error al cargar el dominio:", error);
+                });
+            }
+        });
+
+        $('#dominio-insert').on('click', function () {
+            GetIdNuevoDominio().then(function (nuevoDominioId) {
+                loadObjetoGrilla(
+                    BASE_URL + "Dominio/FormContent",
+                    { DominioId: nuevoDominioId, UnidadTributariaID: @Model.UnidadTributariaId, key: 'dominio' },
+                    'dominioGuardado'
+                )
+                .then(function (nuevoDominio) {
+                    var nuevaFila = `
+                        <tr data-id-dominio="${nuevoDominio.DominioID}">
+                            <td>${nuevoDominio.TipoInscripcionDescripcion}</td>
+                            <td>${nuevoDominio.Inscripcion}</td>
+                            <td>${GetAnioFechaDominio(nuevoDominio.Fecha)}</td>
+                        </tr>
+                    `;
+                    insertarFilaEnGrilla('#tablaDominios', nuevaFila);
+                })
+                .catch(function (error) {
+                    console.error("Error al cargar el dominio:", error);
+                });
+            }).catch(function (error) {
+                console.error("Error al obtener el nuevo ID de dominio:", error);
+            });
+        });
+
+        $('#dominio-delete').on('click', async function () {
+            dominioSeleccionado = GetDominioSeleccionado(GetFilaSeleccionada('#tablaDominios'));
+            if (dominioSeleccionado) {
+                const confirmacion = await mostrarMensajeGeneral(
+                    ["¿Desea eliminar el dominio con tipo de inscripción " + dominioSeleccionado.TipoInscripcionDescripcion +
+                    ", inscripción " + dominioSeleccionado.Inscripcion + " y fecha " + dominioSeleccionado.Fecha +"?", "Tenga en cuenta que los titulares asociados también serán dados de baja."],
+                    `Mantenedor Parcelario - Eliminar Dominio`, true);
+                if (confirmacion) {
+                    $.ajax({
+                        url: BASE_URL + "MantenimientoParcelario/DeleteDominio",
+                        type: 'POST',
+                        data: dominioSeleccionado,
+                        success: function () {
+                            $('#tablaDominios tbody tr').filter(function () {
+                                return $(this).data('id-dominio') == dominioSeleccionado.DominioID;
+                            }).remove();
+                            delete titularesPorDominio[dominioSeleccionado.DominioID];
+                        },
+                        error: function (err) {
+                            alert("Error al eliminar el dominio: " + err.statusText);
+                        }
+                    });
+                }
+            }
+        });
+
+        // ------------------ TITULARES ------------------------
+        inicializarTabla('#tablaTitulares', '#titular-edit', '#titular-delete');
+
+        $('#titular-edit').on('click', function () {
+            titularSeleccionado = GetTitularSeleccionado(GetFilaSeleccionada('#tablaTitulares'));
+            if (titularSeleccionado) {
+                loadObjetoGrilla(
+                    BASE_URL + "DominioTitular/FormContent",
+                    { dominioTitular: titularSeleccionado, idClaseParcela: '@Model.Parcela.ClaseParcelaID', key: 'titular' },
+                    'titularGuardado'
+                )
+                .then(function (titularActualizado) {
+                    //actualizarFilaTablaTitular(titularSeleccionado.PersonaId, titularActualizado);
+                    cargarTitularesEnGrilla(titularActualizado.DominioId);
+                })
+                .catch(function (error) {
+                    console.error("Error al cargar el titular:", error);
+                });
+            }
+        });
+
+        $('#titular-insert').on('click', function () {
+            dominioSeleccionado = GetDominioSeleccionado(GetFilaSeleccionada('#tablaDominios'));
+            if (dominioSeleccionado) {
+                loadObjetoGrilla(
+                    BASE_URL + "DominioTitular/FormContent",
+                    {
+                        PorcientoCopropiedadTotal: getPorcentajeCopropiedadTotal(),
+                        DominioID: dominioSeleccionado.DominioID,
+                        key: 'titular'
+                    },
+                    'titularGuardado'
+                )
+                    .then(function (nuevoTitular) {
+                        /*
+                        var nuevaFila = `
+                            <tr data-dom-pers="${nuevoTitular.DominioPersonaId}"
+                                data-dominio-id="${nuevoTitular.DominioId}"
+                                data-tipo-tit-id="${nuevoTitular.TipoTitularidadId}"
+                                data-persona-id="${nuevoTitular.PersonaId}"
+                                data-nombre="${nuevoTitular.NombreCompleto}"
+                                data-tipo-no-doc="${nuevoTitular.TipoNoDocumento}"
+                                data-porciento-cop="${nuevoTitular.PorcientoCopropiedad}"
+                                data-dom-fisico="${nuevoTitular.DomicilioFisico}"
+                                data-porciento-cop-total="${nuevoTitular.PorcientoCopropiedadTotal}">
+                                <td>${nuevoTitular.NombreCompleto}</td>
+                                <td>${nuevoTitular.TipoNoDocumento.split('/')[0]}</td> <!-- Tipo -->
+                                <td>${nuevoTitular.TipoNoDocumento.split('/')[1]}</td> <!-- Documento -->
+                                <td>${nuevoTitular.PorcientoCopropiedad.toFixed(2)}</td>
+                            </tr>
+                        `;
+                        insertarFilaEnGrilla('#tablaTitulares', nuevaFila);
+                        */
+                        cargarTitularesEnGrilla(nuevoTitular.DominioId);
+                    })
+                    .catch(function (error) {
+                        console.error("Error al cargar el titular:", error);
+                    });
+            } else {
+                mostrarMensajeError(["Debe seleccionar una fila de la grilla dominios para agregar un titular."], "Mantenedor Parcelario - Agregar titular", true);
+            }
+        });
+
+        $('#titular-delete').on('click', async function () {
+            titularSeleccionado = GetTitularSeleccionado(GetFilaSeleccionada('#tablaTitulares'));
+            if (titularSeleccionado) {
+                const confirmacion = await mostrarMensajeGeneral(["¿Desea eliminar a " + titularSeleccionado.NombreCompleto + " como titular ?"], `Mantenedor Parcelario - Eliminar Titular`, true);
+                if (confirmacion) {
+                    $.ajax({
+                        url: BASE_URL + "MantenimientoParcelario/DeleteTitular",
+                        type: 'POST',
+                        data: titularSeleccionado,
+                        success: function () {
+                            $('#tablaTitulares tbody tr').filter(function () {
+                                return $(this).data('persona-id') == titularSeleccionado.PersonaId;
+                            }).remove();
+                            var dominioId = titularSeleccionado.DominioId;
+                            if (titularesPorDominio[dominioId]) {
+                                titularesPorDominio[dominioId] = titularesPorDominio[dominioId].filter(function (titular) {
+                                    return titular.PersonaId !== titularSeleccionado.PersonaId;
+                                });
+                            }
+                        },
+                        error: function (err) {
+                            alert("Error al eliminar el titular: " + err.statusText);
+                        }
+                    });
+                }
+            }
+        });
+
+    });
+
+    function seleccionarPrimerDominio() {
+        @if (primerDominioId.HasValue)
+        {
+            <text>
+            var primerDominioId = '@primerDominioId.Value';
+            if (primerDominioId) {
+                $('#tablaDominios').find('tr[data-id-dominio="' + primerDominioId + '"]').attr('style', 'background-color: #B0BED9 !important;');
+            }
+            </text>
+        }
+    }
+
+    function GetFilaSeleccionada(tabla) {
+        return $(tabla + ' tbody tr[style*="background-color: #B0BED9"], ' + tabla + ' tbody tr[style*="background-color: rgb(176, 190, 217)"]');
+    }
+
+    function insertarFilaEnGrilla(tabla, nuevaFilaHtml) {
+        $(tabla + ' tbody tr').each(function () {
+            if ($(this).find('td[colspan]').length > 0) {
+                $(this).remove();
+            }
+        });
+        $(tabla + ' tbody').prepend(nuevaFilaHtml);
+        //$(tabla + ' tbody tr').each(function () {
+            //$(this).removeAttr('style');
+        //});
+    }
+
+    function inicializarTabla(tabla, btnEditar, btnDelete) {
+        $(tabla).find('tbody').on('click', 'tr', function () {
+            if ($(this).find('td[colspan]').length > 0) {
+                return;
+            }
+            $(tabla).find('tr').not(this).attr('style', '');
+            $(this).attr('style', 'background-color: #B0BED9 !important;');
+            if ($('#edit-all').css('display') === 'none') {
+                $(btnEditar).removeClass('boton-deshabilitado');
+                $(btnDelete).removeClass('boton-deshabilitado');
+            }
+            if ($(tabla).attr('id') === 'tablaDominios') {
+                var dominioId = $(this).data('id-dominio');
+                if (dominioId) {
+                    cargarTitularesEnGrilla(dominioId);
+                }
+            }
+        });
+    }
+
+    function formatearMoneda() {
+        var formatoValorMoneda = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+        var elementos = $('.valor-tierra');
+        elementos.each(function () {
+            var valor = parseFloat($(this).text());
+            if (!isNaN(valor)) {
+                $(this).text(formatoValorMoneda.format(valor));
+            }
+        });
+    }
+
+    // ------------------ DOMINIOS ------------------------
+    function GetDominioSeleccionado(fila) {
+        if (!fila || $(fila).length === 0) {
+            return null;
+        }
+        return {
+            TipoInscripcionDescripcion: $(fila).data('tipo'),
+            Inscripcion: $(fila).data('inscripcion'),
+            Fecha: $(fila).data('fecha'),
+            UnidadTributariaID: $(fila).data('id-ut'),
+            DominioID: $(fila).data('id-dominio'),
+            TipoInscripcionID: $(fila).data('tipo-insc-id'),
+            FechaHora: $(fila).data('fecha'),
+            Operacion: 1
+        };
+    }
+
+    function actualizarFilaTabla(dominioId, dominioActualizado) {
+        var fila = $('#tablaDominios tbody tr').filter(function () {
+            return $(this).data('id-dominio') == dominioId;
+        });
+        if (fila.length) {
+            fila.data('tipo', dominioActualizado.TipoInscripcionDescripcion);
+            fila.data('inscripcion', dominioActualizado.Inscripcion);
+            fila.data('fecha', dominioActualizado.FechaHora);
+
+            fila.find('td').eq(0).text(dominioActualizado.TipoInscripcionDescripcion);
+            fila.find('td').eq(1).text(dominioActualizado.Inscripcion);
+            fila.find('td').eq(2).text(GetAnioFechaDominio(dominioActualizado.Fecha));
+
+            fila.css('background-color', '#B0BED9');
+        }
+    }
+
+    function GetIdNuevoDominio() {
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                url: BASE_URL + "Dominio/GetUltimoDominioID",
+                method: "GET",
+                success: function (data) {
+                    var ultimoDominioId = parseInt(data);
+                    var nuevoDominioId = ultimoDominioId + 1;
+                    var mayorDominioId = 0;
+                    $('#tablaDominios tbody tr').each(function () {
+                        var idDominio = parseInt($(this).data('id-dominio'));
+                        if (idDominio > mayorDominioId) {
+                            mayorDominioId = idDominio;
+                        }
+                    });
+                    if (ultimoDominioId < mayorDominioId) {
+                        nuevoDominioId = mayorDominioId + 1;
+                    }
+                    resolve(nuevoDominioId);
+                },
+                error: function (_, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                    reject(errorThrown);
+                }
+            });
+        });
+    }
+
+    function GetAnioFechaDominio(fecha) {
+        const timestamp = parseInt(fecha.match(/-?\d+/)[0], 10);
+        const fechaUTC = new Date(timestamp);
+        const anio = fechaUTC.getUTCFullYear();
+        return anio === 1 ? "" : anio;
+    }
+
+    // ------------------ TITULARES ------------------------
+    function GetTitularSeleccionado(fila) {
+        if (!fila || $(fila).length === 0) {
+            return null;
+        }
+        return {
+            DominioPersonaId: $(fila).data('dom-pers'),
+            DominioId: $(fila).data('dominio-id'),
+            TipoTitularidadId: $(fila).data('tipo-tit-id'),
+            PersonaId: $(fila).data('persona-id'),
+            NombreCompleto: $(fila).data('nombre'),
+            TipoNoDocumento: $(fila).data('tipo-no-doc'),
+            PorcientoCopropiedad: $(fila).data('porciento-cop'),
+            DomicilioFisico: $(fila).data('dom-fisico'),
+            Operacion: 1,
+            PorcientoCopropiedadTotal: $(fila).data('porciento-cop-total') - $(fila).data('porciento-cop'),
+            FechaEscritura: $(fila).data('fecha-escritura') 
+        };
+    }
+    
+    /*
+    function actualizarFilaTablaTitular(titularId, titularActualizado) {
+        var fila = $('#tablaTitulares tbody tr').filter(function () {
+            return $(this).data('persona-id') == titularId;
+        });
+        if (fila.length) {
+            fila.data('tipo', titularActualizado.TipoInscripcionDescripcion);
+            fila.data('inscripcion', titularActualizado.Inscripcion);
+            fila.data('fecha', titularActualizado.FechaHora);
+            fila.data('persona-id', titularActualizado.PersonaId);
+            fila.data('porciento-cop', titularActualizado.PorcientoCopropiedad);
+            fila.data('dominio-id', titularActualizado.DominioId);
+
+            fila.find('td').eq(0).text(titularActualizado.TipoInscripcionDescripcion);
+            fila.find('td').eq(1).text(titularActualizado.TipoInscripcionDescripcion);
+            fila.find('td').eq(2).text(titularActualizado.UnidadTributariaID);
+            fila.find('td').eq(3).text(titularActualizado.PorcientoCopropiedad.toFixed(2));
+
+            fila.css('background-color', '#B0BED9');
+        }
+    }
+    */
+
+    function getPorcentajeCopropiedadTotal() {
+        var totalPorcientoCopropiedad = 0;
+        $('#tablaTitulares tbody tr').each(function (index, fila) {
+            var porcentaje = parseFloat($(fila).data('porciento-cop'));
+            totalPorcientoCopropiedad += porcentaje;
+        });
+        return totalPorcientoCopropiedad;
+    }
+
+    function cargarTitularesEnGrilla(dominioId) {
+        $.ajax({
+            url: BASE_URL + "MantenimientoParcelario/GetUtTitulares?idDominio=" + dominioId + "&idUnidadTributaria="+ @Model.UnidadTributariaId,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                titularesPorDominio[dominioId] = data.data;
+                cargarFilasTitulares(data.data);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error al obtener los titulares: ', error);
+            }
+        });
+    }
+
+    function cargarFilasTitulares(titulares) {
+        var tbody = $('#tablaTitulares tbody');
+        tbody.empty();
+        $('#titular-edit').addClass('boton-deshabilitado');
+        $('#titular-delete').addClass('boton-deshabilitado');
+        if (titulares && titulares.length > 0) {
+            titulares.forEach(function (titular) {
+                let fechaEscrituraFormatted = "";
+                if (titular.FechaEscritura) {
+                    let fecha = new Date(titular.FechaEscritura);
+                    let day = fecha.getDate().toString().padStart(2, '0');
+                    let month = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                    let year = fecha.getFullYear();
+                    fechaEscrituraFormatted = `${day}/${month}/${year}`;
+                }
+                tbody.append(`
+                <tr data-dom-pers="${titular.DominioPersonaId}"
+                    data-dominio-id="${titular.DominioId}"
+                    data-tipo-tit-id="${titular.TipoTitularidadId}"
+                    data-persona-id="${titular.PersonaId}"
+                    data-nombre="${titular.NombreCompleto}"
+                    data-tipo-no-doc="${titular.TipoNoDocumento}"
+                    data-porciento-cop="${titular.PorcientoCopropiedad}"
+                    data-dom-fisico="${titular.DomicilioFisico}"
+                    data-porciento-cop-total="${titular.PorcientoCopropiedadTotal}"
+                    data-fecha-escritura="${titular.FechaEscritura}">
+                    <td>${titular.NombreCompleto}</td>
+                    <td>${titular.TipoTitularidad}</td>
+                    <td>${titular.TipoNoDocumento}</td>
+                    <td>${titular.PorcientoCopropiedad.toFixed(2)}</td>
+                    <td>${fechaEscrituraFormatted}</td>
+                </tr>
+            `);
+            });
+        } else {
+            tbody.append(`
+            <tr>
+                <td colspan="5" class="text-center">No se encontraron titulares.</td>
+            </tr>
+        `);
+        }
+    }
+</script>
+
+

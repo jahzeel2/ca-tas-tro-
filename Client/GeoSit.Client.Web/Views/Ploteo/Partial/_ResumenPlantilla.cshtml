@@ -1,0 +1,41 @@
+﻿@model GeoSit.Data.BusinessEntities.ModuloPloteo.Plantilla
+
+<div class="col-xs-8">
+    <h4>Resúmen</h4>
+    <div class="margin-top">
+        <div class="row">
+            <div class="col-xs-5">
+                <span>Hoja: </span>
+            </div>
+            <div class="col-xs-7">
+                <span><b>@Html.Raw(Model.Hoja.Nombre)</b></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-5">
+                <span>Orientación: </span>
+            </div>
+            <div class="col-xs-7">
+                <span><b>@(Model.Orientacion == 0 ? "Horizontal" : "Vertical")</b></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-5">
+                <span>Comp. Principal: </span>
+            </div>
+            <div class="col-xs-7">
+                <span><b>@ViewData["ComponentePrincipal"]</b></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xs-4">
+    <h4>Previsualización</h4>
+    <div class="margin-top">
+        @Html.Hidden("file-name", Model.PlantillaFondos.First().ImagenNombre)
+        <input type="hidden" id="file-name" value="@Model.PlantillaFondos.First().ImagenNombre">
+        <div class="row">
+            <input class="file" id="pdf-preview" type="file" style="visibility:hidden">
+        </div>
+    </div>
+</div>

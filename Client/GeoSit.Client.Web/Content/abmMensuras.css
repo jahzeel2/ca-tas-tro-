@@ -1,0 +1,85 @@
+﻿#modal-window-mensuras {
+    --footer-height: 48px;
+}
+
+    #modal-window-mensuras:has(.modal-footer.hidden) {
+        --footer-height: 0px;
+    }
+
+
+    #modal-window-mensuras .mensura-content {
+        max-height: calc(100vh - (112px + var(--footer-height)));
+        overflow: hidden;
+    }
+
+
+    #modal-window-mensuras form.buscador {
+        margin: 5px;
+        margin-bottom: 0;
+    }
+
+    #modal-window-mensuras span.mantenedor,
+    #modal-window-mensuras span.visualizador {
+        margin-inline: auto;
+        color: black;
+        cursor: pointer;
+    }
+
+    #modal-window-mensuras .listado {
+        pointer-events: none !important;
+    }
+
+    #modal-window-mensuras .tabla-con-botones {
+        position: relative;
+        padding: 0;
+        padding-right: 10px;
+    }
+
+        #modal-window-mensuras .tabla-con-botones dl {
+            right: 5px;
+            margin: 0;
+        }
+
+        #modal-window-mensuras .tabla-con-botones.disabled * {
+            pointer-events: none;
+        }
+
+    #modal-window-mensuras .resultados.tabla-con-botones {
+        padding-top: 5px;
+        padding-left: 5px;
+        padding-right: 10px;
+    }
+
+    #modal-window-mensuras [role="tablist"], #modal-window-mensuras .tab-content {
+        margin: 5px;
+    }
+
+    #modal-window-mensuras .tab-content-data {
+        display: grid;
+        margin-inline: 5px;
+    }
+
+        #modal-window-mensuras .tab-content-data > form {
+            display: grid;
+            row-gap: .8rem;
+        }
+
+    #modal-window-mensuras .info-group {
+        display: flex;
+        justify-content: space-evenly;
+        gap: 1rem;
+    }
+
+    #modal-window-mensuras .data-item {
+        flex: 1;
+        display: grid;
+        height: max-content;
+    }
+
+        #modal-window-mensuras .data-item.half-size {
+            flex-grow: 2;
+        }
+
+    #modal-window-mensuras textarea {
+        height: 80px;
+    }

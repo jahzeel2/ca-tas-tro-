@@ -1,0 +1,21 @@
+﻿@using GeoSit.Client.Web.Models.FormularioValuacion;
+@model FormularioValuacionModel
+
+@*Uso el path completo a las vistas porque al llamarlas desde el controller de Mesa de Entradas no las encuentra si se usa el relativo*@
+<div class="panel">
+    <div class="panel-header"><strong>Superficie de Parcela</strong></div>
+    <div class="panel-body superficie-parcela">
+        @{Html.RenderPartial("~/Views/Valuaciones/SuperficieRuralFormateada.cshtml", Model.SuperficieParcela);}
+    </div>
+</div>
+<div class="panel">
+    <div class="panel-header"><strong>Superficie Valuada</strong></div>
+    <div class="panel-body superficie-valuada">
+        @{Html.RenderPartial("~/Views/Valuaciones/SuperficieRuralFormateada.cshtml", Model.SuperficieValuacion);}
+    </div>
+</div>
+<div class="panel">
+    <div class="panel-body diferencia-superficies">
+        @{Html.RenderPartial("~/Views/Valuaciones/DiferenciaSuperficieRuralFormateada.cshtml", Model.SuperficieParcela - Model.SuperficieValuacion);}
+    </div>
+</div>

@@ -1,0 +1,11 @@
+﻿@model GeoSit.Data.BusinessEntities.MesaEntradas.DTO.GeneradorPartidas
+<div class="form-group">
+    <div class="col-xs-offset-1 col-xs-10">
+        <label class="control-label col-xs-3 text-right">
+            Tipo:
+        </label>
+        <div class="col-xs-9">
+            @Html.DropDownListFor(model => model.IdTipo, ViewData["TiposUT"] as IEnumerable<SelectListItem>, new { @class = "form-control" })
+        </div>
+    </div>
+</div>

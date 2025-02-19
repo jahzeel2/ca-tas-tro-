@@ -1,0 +1,615 @@
+﻿@using GeoSit.Data.BusinessEntities.Inmuebles;
+@using Newtonsoft.Json;
+
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-switch.css" rel="stylesheet" />
+<link href="~/Content/css/select2.css" rel="stylesheet" />
+<link href="~/Content/select2-bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/formValidation.min.css" rel="stylesheet" />
+<link href="~/Content/tramitesCertificados.css" rel="stylesheet" />
+<link href="~/Content/mantenedorParcelario.css" rel="stylesheet" />
+<link href="~/Scripts/jstree/dist/themes/default/style.css" rel="stylesheet" />
+
+@{
+    @*
+    var unidadesTributarias = ViewData["UnidadesTributarias"] as List<UnidadTributaria>;
+    var utChildren = new List<object>();
+    if (unidadesTributarias != null)
+    {
+        utChildren = unidadesTributarias
+            .OrderBy(ut => ut.FechaAlta)
+            .Select(ut => (object)new
+            {
+                text = ut.TipoUnidadTributariaID == 6 || ut.TipoUnidadTributariaID == 3
+                    ? "UT: " + ut.TipoUnidadTributaria.Abreviacion + " " + ut.UnidadFuncional
+                    : "UT: " + ut.TipoUnidadTributaria.Abreviacion + " " + ut.CodigoProvincial,
+                data = new
+                {
+                    UnidadTributariaID = ut.UnidadTributariaId
+                },
+                UnidadTributariaId = ut.UnidadTributariaId,
+                FechaAlta = ut.FechaAlta
+            }).ToList();
+    }
+    *@
+}
+
+<div class="modal fade theme_new" id="generacionCertificadosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" style="display: flex !important; justify-content: center; align-items: center;">
+    <div class="modal-dialog modal-xlg" style="margin: 5px auto;">
+        <div class="modal-content">
+            <div class="scroll-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" style="font-size: 14px !important">Mantenedor Parcelario</h3>
+                    <span id="btnCerrarMantenedor" aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+                </div>
+                <div class="modal-body mantenedor-parcelario-body">
+                    <div class="row">
+                        <div class="col-xs-2" id="contenedor-arbol" style="height: 720px;">
+                            <div class="form-control jstree-border jstree-wrapper" readonly>
+                                <div id="arbol" role="tree"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-10" id="objeto" style="margin-top: 5px; margin-left: -13px; overflow-x: hidden;">
+                            @if ((bool)ViewData["Objeto"] == false)
+                            {
+                                @Html.Partial("~/Views/MantenimientoParcelario/Partial/_Parcela.cshtml", Model as GeoSit.Data.BusinessEntities.Inmuebles.Parcela)
+                            }
+                            else
+                            {
+                                @Html.Partial("~/Views/MantenimientoParcelario/Partial/_UnidadTributaria.cshtml", Model as GeoSit.Data.BusinessEntities.Inmuebles.UnidadTributaria)
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-xs-4 pull-right">
+                        @if ((bool)ViewData["PuedeImprimirInforme"])
+                        {
+                            <span aria-hidden="true" aria-controls='button' data-placement="right" title="Reporte" id="print-reporte" class="fa fa-print fa-2x black cursor-pointer"></span>
+                        }
+                        @if ((bool)ViewData["PuedeModificarDatos"])
+                        {
+                            <span aria-hidden="true" aria-controls='button' data-placement="right" title="Cancelar" data-original-title="Cancelar" id="cancel-all" class="fa fa-undo fa-2x black cursor-pointer" style="display: none;"></span>
+                            <span aria-hidden="true" data-edicion="true" data-placement="right" title="Editar" data-original-title="Editar" id="edit-all" class="fa fa-pencil fa-2x black cursor-pointer"></span>
+                            <span aria-hidden="true" aria-controls='button' data-placement="right" title="Guardar" data-original-title="Guardar" id="save-all" class="fa fa-save fa-2x black cursor-pointer"></span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade theme_new mensaje" id="ModalInfo" tabindex="-2" role="dialog" aria-hidden="true" data-backdrop="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="TituloInfo">Titulo</h3>
+                <span aria-hidden="true" class="fa fa-close fa-2x white cursor-pointer pull-right" data-dismiss="modal" aria-label="Cerrar" title="Cerrar"></span>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <p id="DescripcionInfo">Descripcion de la informacion</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="display:none;">
+                <div class="col-lg-4 pull-right">
+                    <span id="btnInfoOK" aria-hidden="true" data-dismiss="modal" title="Seleccionar" class="fa fa-check-circle fa-3x light-blue cursor-pointer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mantenedor-externo-container"></div>
+
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/dataTables.bootstrap.js"></script>
+<script src="~/Scripts/jquery.form.js"></script>
+<script src="~/Scripts/formValidation.min.js"></script>
+<script src="~/Scripts/bootstrapValidation.min.js"></script>
+<script src="~/Scripts/Tramites/main.js"></script>
+<script src="~/Scripts/jstree/dist/jstree.js"></script>
+
+@if (Model is GeoSit.Data.BusinessEntities.Inmuebles.UnidadTributaria)
+{
+    <script type="text/javascript">
+        var utId = @Model.UnidadTributariaId;
+    </script>
+}
+
+
+<script>
+    var titularesPorDominio = {};
+    var cantidadUF = "0";
+    @*var unidadesTributarias = @Html.Raw(JsonConvert.SerializeObject(utChildren));*@
+    var unidadesTributarias = [];
+    var forzarCargarVista = false;
+    $(document).ready(function () {
+        actualizarArbol();
+        @*
+        var utChildrenn = @Html.Raw(Json.Encode(utChildren));
+        $('#arbol').jstree({
+            'core': {
+                'data': [
+                    {
+                        "text": "Parc: " + "@ViewData["Parcela"]",
+                        "children": utChildrenn
+                    }
+                ]
+            },
+            "plugins": ["wholerow"],
+            "themes": {
+                "icons": false
+            }
+        }).on('loaded.jstree', function () {
+            $(this).jstree('open_all');
+            if (typeof utId !== 'undefined') {
+                var utAnchor = $('#arbol').find('a.jstree-anchor');
+                utAnchor.each(function () {
+                var nodeId = $(this).closest('li').attr('id');
+                var node = $('#arbol').jstree(true).get_node(nodeId);
+                    if (node && node.data) {
+                        var nodeData = node.data;
+                        if (nodeData.UnidadTributariaID === utId) {
+                            $(this).addClass('jstree-clicked');
+                            $(this).closest('li').find('div.jstree-wholerow').addClass('jstree-wholerow-clicked');
+                        }
+                    }
+                });
+            } else {
+                var firstLi = $('#arbol').find('li').first();
+                var firstAnchor = firstLi.find('a.jstree-anchor').first();
+                firstAnchor.addClass('jstree-clicked');
+                var firstDiv = firstLi.find('div.jstree-wholerow').first();
+                firstDiv.addClass('jstree-wholerow-clicked');
+            }
+            utId = undefined;
+        }).on('select_node.jstree', async function (e, data) {
+            if ($('#edit-all').css('display') === 'none') {
+                const tipoObjeto = data.node.text.startsWith("Parc: ") ? "Parcela" : "Unidad Tributaria";
+                const confirma = await mostrarMensajeGeneral(
+                    ["Se perderán los datos editados. Esta operación no se puede deshacer.", "", "¿Desea continuar?"],
+                    `Mantenedor Parcelario - Abrir ${tipoObjeto}`, true);
+                if (!confirma) {
+                    $('#arbol').jstree(true).deselect_node(data.node);
+                    return;
+                }
+            }
+            if (data.node.text.startsWith("Parc: ")) {
+                cargarVista("MantenimientoParcelario/GetParcelaView", "Parcela", { idParcela: @Model.ParcelaID });
+            } else if (data.node.data?.UnidadTributariaID) {
+                cargarVista("MantenimientoParcelario/GetUnidadTributariaView", "Unidad Tributaria", { UnidadTributariaId: data.node.data?.UnidadTributariaID });
+            }
+            $('#cancel-all').click();
+        });
+        *@
+
+        $('#edit-all').click(function () {
+            var $fechaBajaInput = $('#FechaBaja');
+            if ($fechaBajaInput.attr('type') === 'text' && $fechaBajaInput.val() === '') {
+                $fechaBajaInput.attr('type', 'date');
+                $fechaBajaInput.val('');
+            }
+            $('#objeto input, #objeto textarea, #objeto select').each(function () {
+                if ($(this).is('select') && $(this).prop('disabled') === true) {
+                    $(this).prop('disabled', false);
+                } else if ($(this).attr('data-editable') !== 'disabled') {
+                    $(this).removeAttr('readonly');
+                }
+            });
+            $('#objeto span.fa-plus-circle').each(function () {
+                $(this).removeClass('boton-deshabilitado');
+            });
+            $('#cancel-all').css('display', 'inline-block').removeClass('boton-deshabilitado');
+            $('#edit-all').css('display', 'none');
+            $('#objeto table').not('#tablaDominios').find('tr').not(this).attr('style', '');
+            $('#abrir-documento').addClass('boton-deshabilitado');
+            $('#save-all').removeClass('boton-deshabilitado');
+        });
+
+        $('#cancel-all').click(function () {
+            $('#objeto input, #objeto textarea, #objeto select').each(function () {
+                if ($(this).is('select')) {
+                    $(this).prop('disabled', true);
+                } else {
+                    $(this).attr('readonly', true);
+                }
+            });
+            $('#objeto span').each(function () {
+                $(this).addClass('boton-deshabilitado');
+            });
+            $(this).css('display', 'none').addClass('boton-deshabilitado');
+            $('#edit-all').css('display', 'inline-block');
+            $('#save-all').addClass('boton-deshabilitado');
+            $("#objeto table").not("#tablaDominios").removeAttr("style");
+        });
+
+        $('#save-all').click(function () {
+            esVistaParcela() ? saveParcela() : saveUnidadTributaria();
+        });
+
+        $('#print-reporte').click(function () {
+            const informeData = esVistaParcela()
+                ? { url: "MantenimientoParcelario/GetInformeParcelario", tipo: "Parcelario", parametro: { id: @Model.ParcelaID } }
+                : { url: "MantenimientoParcelario/GetInformeUT", tipo: "Unidad Tributaria", parametro: { idUnidadTributaria: $("#unidadTributariaId").val() } };
+            generarInforme(informeData.url, informeData.tipo, informeData.parametro);
+        });
+
+        @if ((bool)ViewData["FinalizarAltaAlfanumerica"])
+        {
+            <text>
+                $('#edit-all').click();
+                $('#print-reporte').css('display', 'none');
+            </text>
+        }
+    });
+
+    function validarPorcentajesCopTitularesDominios() {
+        var error = false;
+        for (var dominioId in titularesPorDominio) {
+            if (titularesPorDominio.hasOwnProperty(dominioId)) {
+                var sumaPorcentaje = 0;
+                var titulares = titularesPorDominio[dominioId];
+                titulares.forEach(function (titular) {
+                    var porcentaje = parseFloat(titular.PorcientoCopropiedad) || 0;
+                    sumaPorcentaje += porcentaje;
+                });
+                if (sumaPorcentaje !== 100 && sumaPorcentaje != 0) {
+                    mostrarMensajeError(["La suma de los porcentajes de copropiedad asigandos a los titulares de cada dominio debe dar un total del 100%."], "Mantenedor Parcelario - Guardar");
+                    error = true;
+                }
+            }
+        }
+        if ($("#UnidadFuncional").val() == "0" && $("#tipoUTid").val() != 1) {
+            mostrarMensajeError(["La unidad funcional debe ser distinta de cero (0)."], "Mantenedor Parcelario - Guardar", true);
+            error = true;
+        }
+        return error;
+    }
+
+    function esVistaParcela() {
+        return $('#objeto').find('#grilla-planos').length > 0;
+    }
+
+    async function saveParcela() {
+        if (cantidadUF != "0") {
+            const result = await mostrarMensajeGeneral([
+                "Se procederá con la inserción de " + cantidadUF + " unidades funcionales para esta parcela con clase " + $("#cboClase option:selected").text() + ".",
+                "",
+                "¿Desea continuar?",
+            ], "Mantenedor Parcelario - Guardar", true);
+            if (!result) return;
+        }
+        else if (unidadesTributarias.length > 1 && $("#cboClase").val() != 3 && $("#cboClase").val() != 4) {
+            const result = await mostrarMensajeGeneral([
+                "Se procederá con la BAJA de " + (unidadesTributarias.length - 1) + " unidades funcionales para esta parcela con clase " + $("#cboClase option:selected").text() + ".",
+                "",
+                "¿Desea continuar?",
+            ], "Mantenedor Parcelario - Guardar", true);
+            if (!result) return;
+        }
+        else if (cantidadUF == "0" && unidadesTributarias.length == 1 && ($("#cboClase").val() == 3 || $("#cboClase").val() == 4)) {
+            const result = await mostrarMensajeGeneral(
+                ["Esta parcela tiene seleccionada la clase " + $("#cboClase option:selected").text() + ", por lo tanto, se requiere el ingreso de unidades funcionales."],
+                "Mantenedor Parcelario - Registro de Unidades Funcionales", true);
+            if (result || !result) return;
+        }
+
+        if ($("#cboTipo").val() == 2 || $("#cboTipo").val() == 3) {
+            var superficie = Math.floor(parseFloat($("#SuperficieRegistrada").val()) * 10000);
+        } else {
+            var superficie = Math.floor(parseFloat($("#SuperficieRegistrada").val()));
+        }
+        var nomenclaturaString = "";
+        $("#objeto #nomenclatura-parcela input").each(function () {
+            nomenclaturaString += $(this).val();
+        });
+
+        const datosGenerales = {
+            TipoParcelaID: $("#cboTipo").val(),
+            ClaseParcelaID: $("#cboClase").val(),
+            SuperficieRegistrada: superficie,
+            FechaBaja: $("#FechaBaja").val(),
+            Observaciones: $("#observacionesParcela").val(),
+            Nomenclatura: nomenclaturaString,
+            CantidadUF: cantidadUF
+        };
+
+        showLoading();
+        $.ajax({
+            url: BASE_URL + "MantenimientoParcelario/UpdateParcela",
+            data: datosGenerales,
+            type: 'POST',
+            success: function (data) {
+                if (data && data.eliminada) {
+                    mostrarMensajeError(["La parcela ha sido eliminada."], "Mantenedor Parcelario - Eliminar", true);
+                }
+                //else if (data.ParcelaID) {
+                    //$("#generacionCertificadosModal").modal('hide');
+                    //setTimeout(function () {
+                        //$("#contenido").empty();
+                        //loadView(`${BASE_URL}MantenimientoParcelario/GetMantenedorParcelarioView/${data.ParcelaID}?UnidadTributariaId=0`);
+                    //}, 500);
+                //}
+                else {
+                    mostrarMensajeGeneral(["Los datos de la parcela han sido guardados correctamente."], "Mantenedor Parcelario - Guardar");
+                    $('#cancel-all').click();
+                    forzarCargarVista = false;
+                    actualizarArbol();
+                }
+            },
+            error: function () {
+                mostrarMensajeError(["Ha ocurrido un error al guardar la parcela."], "Mantenedor Parcelario - Guardar");
+            },
+            complete: hideLoading
+        });
+    }
+
+    function saveUnidadTributaria() {
+        if (!validarPorcentajesCopTitularesDominios()) {
+            const datosGenerales = {
+                TipoUTiD: $("#cboTipoUT").val(),
+                Piso: $("#Piso").val(),
+                Designacion: $("#Designaciones").val(),
+                Observaciones: $("#Observaciones").val(),
+                UnidadTributariaId: $("#unidadTributariaId").val(),
+                Partida: $("#CodigoProvincial").val(),
+                UnidadFuncional: $("#UnidadFuncional").val(),
+                PorcentajeCopropiedad: $("#PorcentajeCopropiedad").val(),
+                FechaBaja: $("#FechaBaja").val()
+            };
+            showLoading();
+            $.ajax({
+                url: BASE_URL + "MantenimientoParcelario/UpdateUnidadTributaria",
+                data: datosGenerales,
+                type: 'POST',
+                success: function (data) {
+                    if (data && data.eliminada) {
+                        mostrarMensajeError(["La unidad tributaria ha sido eliminada."], "Mantenedor Parcelario - Eliminar", true);
+                    }
+                    else if (data.partidaRepetida) {
+                        mostrarMensajeError(["La partida ingresada ya existe para otra unidad tributaria."], "Mantenedor Parcelario - Partida duplicada", true);
+                    }
+                    else {
+                        mostrarMensajeGeneral(["Los datos de la unidad tributaria han sido guardados correctamente."], "Mantenedor Parcelario - Guardar");
+                        $('#cancel-all').click();
+                        utId = datosGenerales.UnidadTributariaId;
+                        forzarCargarVista = false;
+                        actualizarArbol();
+                    }
+                },
+                error: function () {
+                    mostrarMensajeError(["Ha ocurrido un error al guardar la unidad tributaria."], "Mantenedor Parcelario - Guardar");
+                },
+                complete: hideLoading
+            });
+        }
+    }
+
+    function generarInforme(url, tipoInforme, data) {
+        showLoading();
+        $.ajax({
+            url: `${BASE_URL}${url}`,
+            type: "POST",
+            data: data,
+            success: function () {
+                window.open(BASE_URL + "MantenimientoParcelario/Abrir");
+            },
+            error: function () {
+                mostrarMensajeError(["Se ha producido un error al generar el Informe " + tipoInforme], "Mantenedor Parcelario - Error");
+            },
+            complete: hideLoading
+        });
+    }
+
+    function cargarVista(url, vista, data) {
+        showLoading();
+        $.ajax({
+            url: `${BASE_URL}${url}`,
+            type: 'GET',
+            data: data,
+            success: function (response) {
+                $('#objeto').html(response);
+            },
+            error: function (xhr, status, error) {
+                mostrarMensajeError(["Se ha producido un error al abrir la vista " + vista + ": " + error] , "Mantenedor Parcelario - Error");
+            },
+            complete: function () {
+                hideLoading();
+            }
+        });
+    }
+
+    function cargarHtml(html, funcion, ejecutarCancel) {
+        $("#mantenedor-externo-container").html(html);
+        $('.modal', "#mantenedor-externo-container").first().one('hidden.bs.modal', function () {
+            $('#mantenedor-externo-container').empty();
+            if (typeof funcion === 'function') {
+                funcion();
+            }
+            if (ejecutarCancel) {
+                $('#cancel-all').click();
+            }
+        });
+    }
+
+    function loadObjetoGrilla(url, data, evento) {
+        showLoading();
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                url: url,
+                method: "POST",
+                dataType: 'html',
+                data: data,
+                success: function (html) {
+                    cargarHtml(html, null, false);
+                    $(document).off(evento).one(evento, function (evt) {
+                        resolve(evt[data.key]);
+                    });
+                    hideLoading();
+                },
+                error: function (_, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                    hideLoading();
+                    reject(errorThrown);
+                }
+            });
+        });
+    }
+
+    function loadAdministradorForm(url, method = 'GET', data = {}, callback) {
+        showLoading();
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                url: url,
+                method: method,
+                dataType: 'html',
+                data: data,
+                success: function (html) {
+                    cargarHtml(html, callback, true);
+                    hideLoading();
+                    resolve();
+                },
+                error: function (_, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                    hideLoading();
+                    reject();
+                }
+            });
+        });
+    }
+
+    function mostrarMensaje(mensajes, titulo, tipo) {
+        $('#TituloInfo', '#ModalInfo').html(titulo);
+        $('#DescripcionInfo', '#ModalInfo').html(mensajes.join("<br />"));
+        $("[role='alert']", "#ModalInfo").removeClass("alert-danger alert-success alert-info alert-warning").addClass(tipo);
+        $(".modal-footer", "#ModalInfo").hide();
+        if (tipo === "alert-info") {
+            $(".modal-footer", "#ModalInfo").show();
+        }
+        $("#ModalInfo").modal('show');
+    }
+
+    function mostrarMensajeError(mensajes, titulo, error) {
+        return mostrarMensaje(mensajes, titulo, (error || false ? "alert-danger" : "alert-warning"));
+    }
+
+    function mostrarMensajeGeneral(mensajes, titulo, confirmacion) {
+        mostrarMensaje(mensajes, titulo, (confirmacion ? "alert-warning" : "alert-success"));
+        if (confirmacion) {
+            $(".modal-footer", "#ModalInfo").show();
+            return new Promise(ok => {
+                $("#ModalInfo").off("hidden.bs.modal").one("hidden.bs.modal", ok.bind(null, false))
+                $("#btnInfoOK").on("click", ok.bind(null, true));
+            });
+        }
+        return Promise.resolve(true);
+    }
+
+    function actualizarArbol() {
+        $.ajax({
+            url: BASE_URL + "MantenimientoParcelario/GetListaUnidadesTributarias",
+            type: 'GET',
+            success: function (listaUT) {
+                unidadesTributarias = listaUT;
+                inicializarArbol(listaUT);
+            },
+            error: function (error) {
+                console.error("Error al actualizar el árbol:", error);
+            }
+        });
+    }
+
+    function inicializarArbol(data) {
+        const uf = data.filter(item => item.TipoUnidadTributariaID === 3);
+        const uc = data.filter(item => item.TipoUnidadTributariaID === 6);
+        let arbolData = [];
+        let children = [];
+
+        if (uf.length > 1 && uc.length > 1) {
+            const utMadre = data.length > 0 ? data[0] : null;
+            children.push({
+                text: utMadre.text,
+                data: utMadre.data,
+                id: 'ut_' + utMadre.UnidadTributariaId
+            });
+            children.push({
+                text: "UF",
+                children: uf.map(item => ({
+                    text: item.text,
+                    data: item.data,
+                    id: 'ut_' + item.UnidadTributariaId
+                }))
+            });
+            children.push({
+                text: "UC",
+                children: uc.map(item => ({
+                    text: item.text,
+                    data: item.data,
+                    id: 'ut_' + item.UnidadTributariaId
+                }))
+            });
+        } else {
+            children = data.map(item => ({
+                text: item.text,
+                data: item.data,
+                id: 'ut_' + item.UnidadTributariaId
+            }));
+        }
+
+        arbolData = [{
+            text: "Parc: " + "@ViewData["Parcela"]",
+            children: children
+        }];
+
+        $('#arbol').jstree("destroy").empty();
+        $('#arbol').jstree({
+            'core': {
+                'data': arbolData
+            },
+            "plugins": ["wholerow"],
+            "themes": {
+                "icons": false
+            }
+        }).on('loaded.jstree', function () {
+            $(this).jstree('open_all');
+            if (typeof utId !== 'undefined') {
+                var node = $('#arbol').jstree(true).get_node('ut_' + utId);
+                if (node) {
+                    $('#arbol').jstree('select_node', node);
+                }
+            } else {
+                var firstLi = $('#arbol').find('li').first();
+                var firstAnchor = firstLi.find('a.jstree-anchor').first();
+                firstAnchor.addClass('jstree-clicked');
+                var firstDiv = firstLi.find('div.jstree-wholerow').first();
+                firstDiv.addClass('jstree-wholerow-clicked');
+            }
+            utId = undefined;
+            forzarCargarVista = true;
+        }).on('select_node.jstree', async function (e, data) {
+            if ($('#edit-all').css('display') === 'none') {
+                const tipoObjeto = data.node.text.startsWith("Parc: ") ? "Parcela" : "Unidad Tributaria";
+                const confirma = await mostrarMensajeGeneral(
+                    ["Se perderán los datos editados. Esta operación no se puede deshacer.", "", "¿Desea continuar?"],
+                    `Mantenedor Parcelario - Abrir ${tipoObjeto}`, true);
+                if (!confirma) {
+                    $('#arbol').jstree(true).deselect_node(data.node);
+                    return;
+                }
+                $('#cancel-all').click(); 
+            }
+            if (forzarCargarVista == true) {
+                if (data.node.text.startsWith("Parc: ")) {
+                    cargarVista("MantenimientoParcelario/GetParcelaView", "Parcela", { idParcela: @Model.ParcelaID });
+                } else if (data.node.data?.UnidadTributariaID) {
+                    cargarVista("MantenimientoParcelario/GetUnidadTributariaView", "Unidad Tributaria", { UnidadTributariaId: data.node.data?.UnidadTributariaID });
+                }
+            }
+            forzarCargarVista = true;
+            //$('#cancel-all').click();
+        });
+    }
+</script>
+

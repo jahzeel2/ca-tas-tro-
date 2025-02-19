@@ -1,0 +1,32 @@
+﻿@using GeoSit.Client.Web.Models.FormularioValuacion;
+
+@model List<GrupoCaracteristicaModel>
+
+<div class="grupos-caracteristicas">
+    @foreach (var grupo in Model)
+    {
+        <div class="@grupo.ClassName">
+            <h5>@grupo.Nombre</h5>
+            <div class="form-horizontal">
+                @foreach (var tipo in grupo.TiposCaracteristicas)
+                {
+                    <div class="form-group form-group-sm">
+                        @{
+                            string id = string.Format("car_{0}", tipo.GetHashCode());
+                            bool editable = (bool)ViewData["Editable"] && (!grupo.Maestra || (bool)ViewData["EditaMaestras"]);
+                        }
+                        <label for="@id">
+                            @tipo.Nombre
+                        </label>
+                        <select id="@id" data-maestra="@grupo.Maestra.ToString().ToLower()" data-editable="@editable.ToString().ToLower()" class="form-control">
+                            @foreach (var caracteristica in tipo.Caracteristicas)
+                            {
+                                <option data-puntaje="@caracteristica.Puntaje" value="@caracteristica.Id">@caracteristica.Descripcion</option>
+                            }
+                        </select>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,102 @@
+﻿namespace GeoSit.Data.BusinessEntities.Common
+{
+    public class Enumerators
+    {
+        public enum EnumTipoMovimiento
+        {
+            None = 0,
+            Crear = 1,
+            Editar = 2,
+            Anular = 3,
+            Derivar = 4,
+            Recibir = 5,
+            Anular_derivacion = 6,
+            Finalizar = 7,
+            Observar = 8,
+            Rechazar = 9,
+            Reingresar = 10,
+            Presentar = 11,
+            Ingresar = 12,
+            Anular_Carga_Libro = 13,
+            Archivar = 14,
+            Desarchivar = 15,
+            Recibir_Presentado = 16,
+            Entregar = 17,
+            Procesar = 18,
+            Reasignar = 19,
+            Validar = 20,
+            AnexarInforme = 21,
+            SolicitarReservas = 22,
+            ConfirmarReservas = 23,
+            GenerarAntecedentes = 24,
+            VisarGraficos = 25,
+            VisarValuaciones = 26,
+            VisarDiminios = 27,
+            VisarCatastro = 28,
+            AprobarGeneral = 29,
+            VisarTopografia = 30,
+            AnexarInformeFirmado = 31,
+            ActualizarInforme = 32,
+        }
+        public enum EnumEstadoTramite
+        {
+            None = 0,
+            Provisorio = 1,
+            Presentado = 2,
+            Iniciado = 3,
+            En_proceso = 4,
+            Derivado = 5,
+            Anulado = 6,
+            Observado = 7,
+            Rechazado = 8,
+            Finalizado = 9,
+            Archivado = 10,
+            Procesado = 11,
+            Entregado = 12,
+            Migracion = 13,
+            ReservasSolicitadas = 14,
+            ReservasConfirmadas = 15,
+            Aprobado = 16,
+        }
+        public enum EnumEvento
+        {
+            DerivarTramite = 137,
+            RecibirTramite = 138,
+            ConfirmarTramite = 139,
+            AnularCargaLibroTramite = 140,
+            RechazarTramite = 141,
+            FinalizarTramite = 142,
+            AnularTramite = 143,
+            DespacharTramite = 144,
+            ArchivarTramite = 145,
+            RecibirPresentadoTramite = 146,
+            AnularDerivaciónTramite = 147,
+            DesarchivarTramite = 148,
+            ReingresarTramite = 149,
+            EditarTramite = 150,
+            CrearTramite = 151,
+            ImprimirCaratula = 152,
+            ImprimirInformeDetallado = 153,
+            ConsultarTramite = 164,
+            EntregarTramite = 165,
+            ProcesarTramite = 192,
+            PresentarTramite = 206,
+            ImprimirInformeAdjudicacion = 207,
+            NotificarTramite = 208,
+            ReasignarTramite = 223,
+            VisarGraficamente = 226,
+            VisarValuaciones = 227,
+            VisarDominios = 228,
+            VisarCatastro = 229,
+            Aprobar = 230
+        }
+        public enum EnumTipoTramite
+        {
+            Mensuras = 1,
+            Certificados = 2,
+            Informes = 3,
+            Copias = 4,
+            Titulo = 5,
+        }
+    }
+}
